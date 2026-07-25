@@ -19,6 +19,7 @@ interface ChatMessage {
   senderName: string;
   text: string;
   isGhost: boolean;
+  isSystem?: boolean;
 }
 
 interface DayViewProps {
@@ -53,6 +54,10 @@ export default function DayView({
 }: DayViewProps) {
   const [message, setMessage] = useState('');
   const chatEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatMessages]);
 
   const [ripples, setRipples] = useState<string[]>([]);
 
@@ -238,34 +243,60 @@ export default function DayView({
                 No messages yet. Discuss who is suspicious!
               </div>
             ) : (
-              chatMessages.map((msg) => {
-                const isMe = msg.senderId === mySocketId;
-                return (
-                  <motion.div
-                    key={msg.id}
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    className={`flex flex-col max-w-[85%] ${
-                      isMe ? 'ml-auto items-end' : 'mr-auto items-start'
-                    }`}
-                  >
-                    <span className="text-[10px] text-slate-500 mb-1 ml-1 uppercase">
-                      {msg.senderName} {msg.isGhost && '(Ghost)'}
-                    </span>
-                    <div
-                      className={`px-3 py-2 rounded-2xl text-sm ${
-                        msg.isGhost
-                          ? 'bg-teal-900/40 text-teal-100 border border-teal-500/30'
-                          : isMe
-                          ? 'bg-purple-600 text-white'
-                          : 'bg-surface-600 text-slate-200'
+              <AnimatePresence initial={false}>
+                {chatMessages.map((msg) => {
+                  const isMe = msg.senderId === mySocketId;
+                  
+                  if (msg.isSystem) {
+                    return (
+                      <motion.div
+                        key={msg.id}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: [0.8, 1.05, 1] }}
+                        transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                        className="flex justify-center my-4"
+                      >
+                        <span className="px-3 py-1 bg-white/10 text-white text-xs font-bold rounded-full border border-white/20">
+                          {msg.text}
+                        </span>
+                      </motion.div>
+                    );
+                  }
+
+                  return (
+                    <motion.div
+                      key={msg.id}
+                      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                      className={`flex flex-col max-w-[85%] ${
+                        isMe ? 'ml-auto items-end' : 'mr-auto items-start'
                       }`}
                     >
-                      {msg.text}
-                    </div>
-                  </motion.div>
-                );
-              })
+                      <motion.span 
+                        animate={msg.isGhost ? { y: [0, -3, 0] } : {}}
+                        transition={msg.isGhost ? { repeat: Infinity, duration: 2.5, ease: 'easeInOut' } : {}}
+                        className={`text-[10px] mb-1 mx-1 uppercase font-semibold flex items-center gap-1 ${
+                          msg.isGhost ? 'text-purple-300 drop-shadow-[0_0_12px_rgba(168,85,247,0.4)]' : 'text-slate-500'
+                        }`}
+                      >
+                        {msg.senderName} {msg.isGhost && '👻'}
+                      </motion.span>
+                      <div
+                        className={`px-3 py-2 rounded-2xl text-sm shadow-sm ${
+                          msg.isGhost
+                            ? 'bg-purple-900/30 text-purple-200 border border-dashed border-purple-500/30 italic opacity-60 backdrop-blur-sm'
+                            : isMe
+                            ? 'bg-purple-600 text-white'
+                            : 'bg-surface-600 text-slate-200'
+                        }`}
+                      >
+                        {msg.text}
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
             )}
             <div ref={chatEndRef} />
           </div>

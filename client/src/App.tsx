@@ -33,6 +33,7 @@ interface ChatMessage {
   senderName: string;
   text: string;
   isGhost: boolean;
+  isSystem?: boolean;
 }
 
 export interface RevealedRole {

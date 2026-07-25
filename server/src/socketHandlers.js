@@ -229,6 +229,29 @@ function registerHandlers(io, socket) {
         io.to(roomCode).emit('phase_change', { phase: 'day' });
         io.to(roomCode).emit('night_results', { killed });
 
+        // System message for night kills
+        if (killed.length > 0) {
+          killed.forEach((k) => {
+            io.to(roomCode).emit('chat_message', {
+              id: Math.random().toString(36).substr(2, 9),
+              senderId: 'system',
+              senderName: 'System',
+              text: `${k.playerName} was eliminated during the night.`,
+              isGhost: false,
+              isSystem: true
+            });
+          });
+        } else {
+            io.to(roomCode).emit('chat_message', {
+              id: Math.random().toString(36).substr(2, 9),
+              senderId: 'system',
+              senderName: 'System',
+              text: `Nobody was eliminated last night.`,
+              isGhost: false,
+              isSystem: true
+            });
+        }
+
         console.log(
           `[Room ${roomCode}] Night resolved — killed: ${
             killed.length > 0 ? killed.map((k) => k.playerName).join(', ') : 'nobody'
@@ -327,6 +350,16 @@ function registerHandlers(io, socket) {
       if (votedOutId) {
         const votedOutPlayer = state.players[votedOutId];
         console.log(`[Room ${roomCode}] ${votedOutPlayer.name} was voted out.`);
+
+        // System message for day voting
+        io.to(roomCode).emit('chat_message', {
+          id: Math.random().toString(36).substr(2, 9),
+          senderId: 'system',
+          senderName: 'System',
+          text: `${votedOutPlayer.name} was voted out by the town.`,
+          isGhost: false,
+          isSystem: true
+        });
 
         // Strategy Pattern hook
         votedOutPlayer.role.onVotedOut(state);
