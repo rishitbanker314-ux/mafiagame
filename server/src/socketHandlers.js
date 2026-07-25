@@ -152,6 +152,7 @@ function registerHandlers(io, socket) {
       socket.data.sessionId = sessionId;
 
       console.log(`[Room ${code}] Created by ${sessionId} (${playerName})`);
+      io.to(code).emit('update_lobby', { players: getPlayerList(state), settings: state.settings });
       if (callback) callback({ success: true, roomCode: code });
     } catch (err) {
       if (callback) callback({ success: false, error: err.message });

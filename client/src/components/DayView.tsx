@@ -12,7 +12,7 @@ interface DayViewProps {
   killed: KilledPlayer[];
   chatMessages: ChatMessage[];
   votes: Record<string, number>;
-  mySocketId: string;
+  mySessionId: string;
 }
 
 const listVariants = {
@@ -58,7 +58,7 @@ export default function DayView({
     return () => window.removeEventListener('voteHit', handleVoteHit);
   }, []);
 
-  const me = players.find((p) => p.id === mySocketId);
+  const me = players.find((p) => p.id === mySessionId);
   
   // Use all players so dead players remain in the DOM for animations
   // Sorting dead players to the bottom could be an option, but for now just map all
