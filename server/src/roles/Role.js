@@ -66,6 +66,18 @@ class Role {
   onVotedOut(state) {
     // No-op by default
   }
+
+  /**
+   * Called by the Bot Engine to determine the target for a bot during the Night phase.
+   * Concrete roles with night actions should override this.
+   * 
+   * @param {string} botId - The ID of the bot executing the action.
+   * @param {object} state - The current game state.
+   * @returns {string|null} - The target player ID, or null if no valid target.
+   */
+  getBotNightTarget(botId, state) {
+    return null;
+  }
 }
 
 module.exports = Role;

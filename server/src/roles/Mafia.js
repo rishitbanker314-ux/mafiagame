@@ -30,6 +30,14 @@ class Mafia extends Role {
     });
     return { type: 'kill', sourceId, targetId };
   }
+
+  getBotNightTarget(botId, state) {
+    // Mafia kills a random alive player who is not in the mafia
+    const validTargets = Object.values(state.players).filter(p => p.isAlive && p.role && p.role.team !== 'mafia');
+    if (validTargets.length === 0) return null;
+    const target = validTargets[Math.floor(Math.random() * validTargets.length)];
+    return target.id;
+  }
 }
 
 module.exports = Mafia;

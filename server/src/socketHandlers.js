@@ -13,39 +13,10 @@
 const { createRoomState, joinRoomState, getRoom, getPlayerList } = require('./rooms');
 const { createRole } = require('./roles/registry');
 const { resolveNightPhase } = require('./engine/resolveNightPhase');
-const { checkWinCondition } = require('./engine/checkWinCondition');
+const { handleWinCondition, computePendingActions } = require('./engine/gameHelpers');
+const { simulateBotNightActions, simulateBotDayActions } = require('./botEngine');
 
 /**
- * Handle game over evaluation and broadcast if a win condition is met.
- * @param {import('socket.io').Server} io
- * @param {string} roomCode
- * @param {object} state
- * @returns {boolean} true if game over
- */
-function handleWinCondition(io, roomCode, state) {
-  const result = checkWinCondition(state);
-  if (result.gameOver) {
-    state.phase = 'game_over';
-    const revealedRoles = Object.keys(state.players).map((pid) => {
-      const p = state.players[pid];
-      return {
-        playerName: p.name,
-        roleName: p.role ? p.role.name : 'Unknown',
-        team: p.role ? p.role.team : 'neutral',
-        isAlive: p.isAlive,
-      };
-    });
-
-    io.to(roomCode).emit('phase_change', { phase: 'game_over' });
-    io.to(roomCode).emit('game_over', {
-      winner: result.winner,
-      revealedRoles,
-    });
-    console.log(`[Room ${roomCode}] Game Over! Winner: ${result.winner}`);
-    return true;
-  }
-  return false;
-}
 
 /**
  * Fisher-Yates shuffle (in-place).
@@ -79,17 +50,6 @@ function buildRoleList(playerCount) {
  * @param {object} state
  * @returns {Set<string>}
  */
-function computePendingActions(state) {
-  const pending = new Set();
-  for (const pid of Object.keys(state.players)) {
-    const player = state.players[pid];
-    if (player.isAlive && player.role && player.role.canActAtNight()) {
-      pending.add(pid);
-    }
-  }
-  return pending;
-}
-
 /**
  * Register all socket event handlers for a connected socket.
  * @param {import('socket.io').Server} io
@@ -133,6 +93,37 @@ function registerHandlers(io, socket) {
 
   // ── 2. Game Start & Role Distribution ───────────────────────────────
 
+  socket.on('add_bot', (_, callback) => {
+    try {
+      const roomCode = socket.data.roomCode;
+      const state = getRoom(roomCode);
+      if (!state) throw new Error('Room not found.');
+      if (state.phase !== 'lobby') throw new Error('Game already started.');
+      if (state.hostId !== socket.id) throw new Error('Only host can add bots.');
+      
+      const botCount = Object.values(state.players).filter(p => p.isBot).length;
+      const botId = `bot_${Math.random().toString(36).substr(2, 9)}`;
+      const botNames = ['Alice', 'Bob', 'Charlie', 'Dave', 'Eve', 'Frank', 'Grace', 'Heidi', 'Ivan', 'Judy'];
+      const botName = `Bot ${botNames[botCount % botNames.length]}`;
+      
+      state.players[botId] = {
+        id: botId,
+        name: botName,
+        isAlive: true,
+        role: null,
+        socketId: botId,
+        isBot: true,
+      };
+
+      io.to(roomCode).emit('update_lobby', { players: getPlayerList(state) });
+      console.log(`[Room ${roomCode}] Bot ${botName} added by host`);
+
+      if (callback) callback({ success: true });
+    } catch (err) {
+      if (callback) callback({ success: false, error: err.message });
+    }
+  });
+
   socket.on('start_game', (_, callback) => {
     try {
       const roomCode = socket.data.roomCode;
@@ -164,6 +155,8 @@ function registerHandlers(io, socket) {
       state.pendingActions = computePendingActions(state);
 
       io.to(roomCode).emit('phase_change', { phase: 'night' });
+      
+      simulateBotNightActions(io, roomCode, state);
 
       console.log(`[Room ${roomCode}] Game started — ${playerIds.length} players, night phase`);
 
@@ -259,6 +252,8 @@ function registerHandlers(io, socket) {
               killed.length > 0 ? killed.map((k) => k.playerName).join(', ') : 'nobody'
             }`
           );
+          
+          simulateBotDayActions(io, roomCode, state);
         }, 500);
       }
     } catch (err) {
@@ -385,6 +380,8 @@ function registerHandlers(io, socket) {
           state.phase = 'night';
           state.pendingActions = computePendingActions(state);
           io.to(roomCode).emit('phase_change', { phase: 'night' });
+          
+          simulateBotNightActions(io, roomCode, state);
         }, 2500);
       }
 
@@ -481,4 +478,4 @@ function registerHandlers(io, socket) {
   });
 }
 
-module.exports = { registerHandlers, buildRoleList, computePendingActions };
+module.exports = { registerHandlers };

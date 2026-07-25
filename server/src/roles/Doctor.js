@@ -35,6 +35,14 @@ class Doctor extends Role {
   canActAtNight() {
     return true;
   }
+
+  getBotNightTarget(botId, state) {
+    // Doctor can protect anyone, including themselves
+    const alivePlayers = Object.values(state.players).filter(p => p.isAlive);
+    if (alivePlayers.length === 0) return null;
+    const target = alivePlayers[Math.floor(Math.random() * alivePlayers.length)];
+    return target.id;
+  }
 }
 
 module.exports = Doctor;

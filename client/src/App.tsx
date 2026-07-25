@@ -17,6 +17,7 @@ export interface Player {
   isAlive: boolean;
   role?: string;
   socketId?: string; // Add socketId for animation tracking
+  isBot?: boolean;
 }
 
 export interface RoleInfo {

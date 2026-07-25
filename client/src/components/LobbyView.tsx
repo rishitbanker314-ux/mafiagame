@@ -47,6 +47,14 @@ export default function LobbyView({
     });
   }
 
+  function handleAddBot() {
+    socket.emit('add_bot', null, (res: { success: boolean; error?: string }) => {
+      if (!res.success) {
+        console.error('Failed to add bot:', res.error);
+      }
+    });
+  }
+
   function copyCode() {
     navigator.clipboard.writeText(roomCode);
   }
@@ -127,6 +135,13 @@ export default function LobbyView({
                   </span>
                 )}
 
+                {/* Bot badge */}
+                {player.isBot && (
+                  <span className="ml-auto text-xs font-medium text-blue-400/80 bg-blue-400/10 px-2 py-0.5 rounded-full">
+                    Bot
+                  </span>
+                )}
+
                 {/* You badge */}
                 {player.id === mySocketId && idx !== 0 && (
                   <span className="ml-auto text-xs font-medium text-purple-400/80 bg-purple-400/10 px-2 py-0.5 rounded-full">
@@ -140,15 +155,25 @@ export default function LobbyView({
 
         {/* Waiting / Start */}
         {isHost ? (
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="btn btn-primary w-full"
-            onClick={handleStart}
-            disabled={players.length < 2}
-          >
-            {players.length < 2 ? 'Waiting for players...' : 'Start Game'}
-          </motion.button>
+          <div className="space-y-3">
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="btn w-full bg-surface-700 hover:bg-surface-600 text-slate-200 border border-white/10"
+              onClick={handleAddBot}
+            >
+              + Add Bot
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="btn btn-primary w-full"
+              onClick={handleStart}
+              disabled={players.length < 2}
+            >
+              {players.length < 2 ? 'Waiting for players...' : 'Start Game'}
+            </motion.button>
+          </div>
         ) : (
           <div className="text-center">
             <p className="text-sm text-slate-400 animate-pulse-slow">

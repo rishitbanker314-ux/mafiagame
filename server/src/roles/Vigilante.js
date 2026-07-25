@@ -48,6 +48,16 @@ class Vigilante extends Role {
   canActAtNight() {
     return this.bullets > 0;
   }
+
+  getBotNightTarget(botId, state) {
+    // Vigilante randomly shoots a player (except themselves). Maybe they only shoot sometimes?
+    // Let's give them a 50% chance to shoot each night they have bullets
+    if (Math.random() < 0.5) return null;
+    const validTargets = Object.values(state.players).filter(p => p.isAlive && p.id !== botId);
+    if (validTargets.length === 0) return null;
+    const target = validTargets[Math.floor(Math.random() * validTargets.length)];
+    return target.id;
+  }
 }
 
 module.exports = Vigilante;
