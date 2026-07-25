@@ -7,6 +7,7 @@ import LobbyView from './components/LobbyView';
 import NightView from './components/NightView';
 import DayView from './components/DayView';
 import GameOverView from './components/GameOverView';
+import VoteAnimator from './components/VoteAnimator';
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -201,74 +202,78 @@ export default function App() {
   // ── Render ──────────────────────────────────────────────────────────
 
   return (
-    <div className="relative">
-      <Background phase={phase} winner={winner} />
+    <VoteAnimator>
+      <div className="relative min-h-screen text-white overflow-hidden selection:bg-purple-500/30">
+        <Background phase={phase} winner={winner} />
 
-      {/* Connection indicator */}
-      <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
-        <div
-          className={`w-2 h-2 rounded-full ${
-            connected ? 'bg-green-400' : 'bg-red-400 animate-pulse-slow'
-          }`}
-        />
-        <span className="text-xs text-slate-500">
-          {connected ? 'Connected' : 'Reconnecting...'}
-        </span>
+        {/* Connection indicator */}
+        <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
+          <div
+            className={`w-2 h-2 rounded-full ${
+              connected ? 'bg-green-400' : 'bg-red-400 animate-pulse-slow'
+            }`}
+          />
+          <span className="text-xs text-slate-500">
+            {connected ? 'Connected' : 'Reconnecting...'}
+          </span>
+        </div>
+
+        <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={phase}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+              className="w-full"
+            >
+              {/* Phase-based views */}
+              {phase === 'join' && (
+                <JoinView socket={socket} onJoined={handleJoined} />
+              )}
+
+              {phase === 'lobby' && (
+                <LobbyView
+                  socket={socket}
+                  roomCode={roomCode}
+                  players={players}
+                  mySocketId={socket.id ?? ''}
+                />
+              )}
+
+              {phase === 'night' && myRole && (
+                <NightView
+                  socket={socket}
+                  myRole={myRole}
+                  players={players}
+                  mySocketId={socket.id ?? ''}
+                />
+              )}
+
+              {phase === 'day' && (
+                <DayView 
+                  socket={socket}
+                  players={players} 
+                  killed={killed}
+                  chatMessages={chatMessages}
+                  votes={votes}
+                  mySocketId={socket.id ?? ''}
+                />
+              )}
+
+              {phase === 'game_over' && (
+                <GameOverView
+                  socket={socket}
+                  winner={winner}
+                  revealedRoles={revealedRoles}
+                  isHost={players[0]?.id === socket.id} // First player in lobby is host
+                />
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </div>
-
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={phase}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          transition={{ duration: 0.3 }}
-          className="w-full"
-        >
-          {/* Phase-based views */}
-          {phase === 'join' && (
-            <JoinView socket={socket} onJoined={handleJoined} />
-          )}
-
-          {phase === 'lobby' && (
-            <LobbyView
-              socket={socket}
-              roomCode={roomCode}
-              players={players}
-              mySocketId={socket.id ?? ''}
-            />
-          )}
-
-          {phase === 'night' && myRole && (
-            <NightView
-              socket={socket}
-              myRole={myRole}
-              players={players}
-              mySocketId={socket.id ?? ''}
-            />
-          )}
-
-          {phase === 'day' && (
-            <DayView 
-              socket={socket}
-              players={players} 
-              killed={killed}
-              chatMessages={chatMessages}
-              votes={votes}
-              mySocketId={socket.id ?? ''}
-            />
-          )}
-
-          {phase === 'game_over' && (
-            <GameOverView
-              socket={socket}
-              winner={winner}
-              revealedRoles={revealedRoles}
-              isHost={players[0]?.id === socket.id} // First player in lobby is host
-            />
-          )}
-        </motion.div>
-      </AnimatePresence>
-    </div>
+    </VoteAnimator>
   );
 }

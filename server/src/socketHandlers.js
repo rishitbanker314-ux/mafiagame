@@ -304,7 +304,11 @@ function registerHandlers(io, socket) {
         voteCounts[tId] = (voteCounts[tId] || 0) + 1;
       }
 
-      io.to(roomCode).emit('vote_update', { votes: voteCounts });
+      io.to(roomCode).emit('vote_update', { 
+        voterId: socket.id,
+        targetId: targetId,
+        votes: voteCounts 
+      });
 
       if (callback) callback({ success: true });
 

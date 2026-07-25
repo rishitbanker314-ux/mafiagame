@@ -53,6 +53,22 @@ export default function DayView({
 }: DayViewProps) {
   const [message, setMessage] = useState('');
   const chatEndRef = useRef<HTMLDivElement>(null);
+
+  const [ripples, setRipples] = useState<string[]>([]);
+
+  useEffect(() => {
+    function handleVoteHit(e: Event) {
+      const targetId = (e as CustomEvent).detail.targetId;
+      setRipples(prev => [...prev, targetId]);
+      setTimeout(() => {
+        setRipples(prev => prev.filter(id => id !== targetId));
+      }, 500); // 500ms ripple duration
+    }
+
+    window.addEventListener('voteHit', handleVoteHit);
+    return () => window.removeEventListener('voteHit', handleVoteHit);
+  }, []);
+
   const me = players.find((p) => p.id === mySocketId);
   
   const alivePlayers = players.filter((p) => p.isAlive);
@@ -155,15 +171,33 @@ export default function DayView({
                 return (
                   <motion.button
                     key={player.id}
+                    id={`player-ref-${player.id}`}
                     variants={itemVariants}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => handleVote(player.id)}
                     disabled={!me?.isAlive}
-                    className="w-full flex items-center justify-between px-4 py-3 rounded-lg bg-surface-700/50 hover:bg-purple-500/10 border border-transparent hover:border-purple-500/30 transition-all text-left group disabled:opacity-50 disabled:hover:bg-surface-700/50 disabled:cursor-not-allowed"
+                    className={`w-full relative overflow-hidden flex items-center justify-between px-4 py-3 rounded-lg border transition-all text-left group disabled:opacity-50 disabled:cursor-not-allowed ${
+                      ripples.includes(player.id)
+                        ? 'bg-purple-500/20 border-purple-500'
+                        : 'bg-surface-700/50 hover:bg-purple-500/10 border-transparent hover:border-purple-500/30 disabled:hover:bg-surface-700/50'
+                    }`}
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 rounded-full bg-green-400 shrink-0" />
+                    {/* Ripple overlay */}
+                    <AnimatePresence>
+                      {ripples.includes(player.id) && (
+                        <motion.div
+                          initial={{ opacity: 0.5, scale: 0 }}
+                          animate={{ opacity: 0, scale: 2 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.5, ease: "easeOut" }}
+                          className="absolute inset-0 bg-purple-400 rounded-lg pointer-events-none"
+                        />
+                      )}
+                    </AnimatePresence>
+                    
+                    <div className="flex items-center gap-3 relative z-10">
+                      <div className="avatar-circle w-2 h-2 rounded-full bg-green-400 shrink-0" />
                       <span className="text-slate-200 font-medium group-hover:text-purple-300">
                         {player.name}
                       </span>
@@ -173,7 +207,7 @@ export default function DayView({
                         initial={{ scale: 0 }} 
                         animate={{ scale: 1 }} 
                         key={voteCount} 
-                        className="text-xs font-bold text-white bg-purple-500 px-2 py-1 rounded-full"
+                        className="text-xs font-bold text-white bg-purple-500 px-2 py-1 rounded-full relative z-10"
                       >
                         {voteCount} {voteCount === 1 ? 'vote' : 'votes'}
                       </motion.span>
