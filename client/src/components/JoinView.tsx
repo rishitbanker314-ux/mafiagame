@@ -48,6 +48,39 @@ export default function JoinView({ socket, onJoined }: JoinViewProps) {
     );
   }
 
+  function handlePlayWithBots() {
+    if (!name.trim()) {
+      setError('Enter your name first');
+      return;
+    }
+    setError('');
+    setLoading(true);
+
+    socket.emit(
+      'create_room',
+      { playerName: name.trim() },
+      (res: { success: boolean; roomCode?: string; error?: string }) => {
+        if (res.success && res.roomCode) {
+          const roomCode = res.roomCode;
+          // Add 3 bots automatically to reach the 4-player minimum for a good game
+          let botsAdded = 0;
+          for (let i = 0; i < 3; i++) {
+            socket.emit('add_bot', null, () => {
+              botsAdded++;
+              if (botsAdded === 3) {
+                setLoading(false);
+                onJoined(roomCode, name.trim());
+              }
+            });
+          }
+        } else {
+          setLoading(false);
+          setError(res.error || 'Failed to create room');
+        }
+      }
+    );
+  }
+
   function handleJoin() {
     if (!name.trim()) {
       setError('Enter your name first');
@@ -157,6 +190,16 @@ export default function JoinView({ socket, onJoined }: JoinViewProps) {
           >
             {loading && <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin absolute left-4" />}
             {loading ? 'Creating...' : 'Create New Room'}
+          </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="btn w-full relative flex justify-center items-center bg-surface-700 hover:bg-surface-600 text-slate-200 border border-white/10 mt-1"
+            onClick={handlePlayWithBots}
+            disabled={loading}
+          >
+            {loading ? 'Setting up...' : '🤖 Play with Bots (Singleplayer)'}
           </motion.button>
         </motion.div>
       </motion.div>
