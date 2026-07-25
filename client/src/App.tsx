@@ -7,6 +7,7 @@ import LobbyView from './components/LobbyView';
 import NightView from './components/NightView';
 import DayView from './components/DayView';
 import GameOverView from './components/GameOverView';
+import RoleReveal from './components/RoleReveal';
 import VoteAnimator from './components/VoteAnimator';
 import ProgressBar from './components/ProgressBar';
 
@@ -22,9 +23,10 @@ export interface Player {
   connected?: boolean;
 }
 
-export interface RoleInfo {
+export interface Role {
   roleName: string;
   team: string;
+  mafiaTeammates?: string[];
 }
 
 export interface KilledPlayer {
@@ -64,7 +66,9 @@ export default function App() {
   const [phase, setPhase] = useState<Phase>('join');
   const [roomCode, setRoomCode] = useState('');
   const [players, setPlayers] = useState<Player[]>([]);
-  const [myRole, setMyRole] = useState<RoleInfo | null>(null);
+  const [myRole, setMyRole] = useState<Role | null>(null);
+  const [myTeammates, setMyTeammates] = useState<string[]>([]);
+  const [showRoleReveal, setShowRoleReveal] = useState(false);
   const [killed, setKilled] = useState<KilledPlayer[]>([]);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [votes, setVotes] = useState<Record<string, number>>({});
@@ -100,7 +104,12 @@ export default function App() {
             setPhase(res.gameState.phase);
             setPlayers(res.gameState.players);
             if (res.gameState.settings) setSettings(res.gameState.settings);
-            if (res.gameState.myRole) setMyRole(res.gameState.myRole);
+            if (res.gameState.myRole) {
+              setMyRole(res.gameState.myRole);
+              if (res.gameState.myRole.mafiaTeammates) {
+                setMyTeammates(res.gameState.myRole.mafiaTeammates);
+              }
+            }
             if (res.gameState.votes) setVotes(res.gameState.votes);
             if (res.gameState.winner) setWinner(res.gameState.winner);
             if (res.gameState.timerLeft) setTimeLeft(res.gameState.timerLeft);
@@ -137,8 +146,12 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    function onYourRole(data: RoleInfo) {
+    function onYourRole(data: Role) {
       setMyRole(data);
+      if (data.mafiaTeammates) {
+        setMyTeammates(data.mafiaTeammates);
+      }
+      setShowRoleReveal(true);
     }
 
     socket.on('your_role', onYourRole);
@@ -159,6 +172,7 @@ export default function App() {
       } else if (data.phase === 'lobby') {
         // Clear game state tracking variables on restart
         setMyRole(null);
+        setMyTeammates([]);
         setKilled([]);
         setChatMessages([]);
         setVotes({});
@@ -301,6 +315,15 @@ export default function App() {
           </span>
         </div>
 
+        {showRoleReveal && myRole && (
+          <div className="absolute inset-0 z-50">
+            <RoleReveal 
+              roleName={myRole.roleName} 
+              onAcknowledge={() => setShowRoleReveal(false)} 
+            />
+          </div>
+        )}
+
         <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
           <AnimatePresence mode="wait">
             <motion.div
@@ -332,6 +355,7 @@ export default function App() {
                   myRole={myRole}
                   players={players}
                   mySessionId={localStorage.getItem('sessionToken') ?? ''}
+                  myTeammates={myTeammates}
                 />
               )}
 
@@ -344,6 +368,7 @@ export default function App() {
                   votes={votes}
                   mySessionId={localStorage.getItem('sessionToken') ?? ''}
                   phase={phase}
+                  myTeammates={myTeammates}
                 />
               )}
 

@@ -209,6 +209,11 @@ function registerHandlers(io, socket) {
       io.to(roomCode).emit('update_lobby', { players: getPlayerList(state), settings: state.settings });
       
       const roleInfo = player.role ? { roleName: player.role.name, team: player.role.team } : null;
+      if (roleInfo && roleInfo.team === 'mafia') {
+        roleInfo.mafiaTeammates = Object.values(state.players)
+          .filter(p => p.role && p.role.team === 'mafia' && p.id !== player.id)
+          .map(p => p.name);
+      }
       
       if (callback) {
         callback({
@@ -284,10 +289,16 @@ function registerHandlers(io, socket) {
       playerIds.forEach((pid) => {
         const player = state.players[pid];
         if (!player.isBot && player.socketId) {
-          io.to(player.socketId).emit('your_role', {
+          const payload = {
             roleName: player.role.name,
             team: player.role.team,
-          });
+          };
+          if (player.role.team === 'mafia') {
+            payload.mafiaTeammates = Object.values(state.players)
+              .filter(p => p.role && p.role.team === 'mafia' && p.id !== player.id)
+              .map(p => p.name);
+          }
+          io.to(player.socketId).emit('your_role', payload);
         }
       });
 

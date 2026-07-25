@@ -8,7 +8,8 @@ interface NightViewProps {
   socket: Socket;
   myRole: RoleInfo;
   players: Player[];
-  mySocketId: string;
+  mySessionId: string;
+  myTeammates?: string[];
 }
 
 const ROLE_EMOJIS: Record<string, string> = {
@@ -41,6 +42,7 @@ export default function NightView({
   myRole,
   players,
   mySessionId,
+  myTeammates,
 }: NightViewProps) {
   const [submitted, setSubmitted] = useState(false);
 
@@ -99,6 +101,18 @@ export default function NightView({
 
         {/* Divider */}
         <div className="h-px bg-red-500/10 mb-6" />
+
+        {/* The Syndicate HUD (Mafia Only) */}
+        {myTeammates && myTeammates.length > 0 && (
+          <motion.div variants={itemVariants} className="mb-6 p-3 rounded-xl bg-red-950/40 border border-red-500/30">
+            <h3 className="text-xs font-bold text-red-500 uppercase tracking-widest mb-1 flex items-center justify-center gap-2">
+              <span>🩸</span> The Syndicate
+            </h3>
+            <p className="text-sm text-red-200/80 text-center">
+              Your allies: <span className="font-semibold text-red-100">{myTeammates.join(', ')}</span>
+            </p>
+          </motion.div>
+        )}
 
         {/* Target list or waiting message */}
         {!hasNightAction ? (

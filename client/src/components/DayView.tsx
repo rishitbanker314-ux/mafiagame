@@ -13,6 +13,7 @@ interface DayViewProps {
   votes: Record<string, number>;
   mySessionId: string;
   phase: 'day_discussion' | 'day_voting';
+  myTeammates?: string[];
 }
 
 const itemVariants = {
@@ -28,6 +29,7 @@ export default function DayView({
   votes,
   mySessionId,
   phase,
+  myTeammates,
 }: DayViewProps) {
   const me = players.find((p) => p.id === mySessionId);
   const isMeAlive = me?.isAlive ?? false;
@@ -113,6 +115,18 @@ export default function DayView({
         {killed.length === 0 && (
           <motion.div variants={itemVariants} className="shrink-0 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center">
             <p className="text-sm text-emerald-400 font-medium">It was a quiet night. Nobody was eliminated.</p>
+          </motion.div>
+        )}
+
+        {/* The Syndicate HUD (Mafia Only) */}
+        {myTeammates && myTeammates.length > 0 && (
+          <motion.div variants={itemVariants} className="shrink-0 p-3 rounded-xl bg-red-950/40 border border-red-500/30">
+            <h3 className="text-xs font-bold text-red-500 uppercase tracking-widest mb-1 flex items-center gap-2">
+              <span>🩸</span> The Syndicate
+            </h3>
+            <p className="text-sm text-red-200/80">
+              Your allies: <span className="font-semibold text-red-100">{myTeammates.join(', ')}</span>
+            </p>
           </motion.div>
         )}
 
