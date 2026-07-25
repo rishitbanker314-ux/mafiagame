@@ -1,5 +1,6 @@
 import type { Socket } from 'socket.io-client';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import type { GameSettings } from '../App';
 
 interface Player {
   id: string;
@@ -12,6 +13,7 @@ interface LobbyViewProps {
   roomCode: string;
   players: Player[];
   mySocketId: string;
+  settings?: GameSettings;
 }
 
 const listVariants = {
@@ -46,6 +48,14 @@ export default function LobbyView({
       }
     });
   }
+
+  function updateSetting(key: keyof GameSettings, value: any) {
+    if (!settings) return;
+    const newSettings = { ...settings, [key]: value };
+    socket.emit('update_settings', newSettings);
+  }
+
+  const tooManyMafia = settings && players.length > 0 && settings.mafiaCount >= players.length / 2;
 
   function handleAddBot() {
     socket.emit('add_bot', null, (res: { success: boolean; error?: string }) => {
@@ -153,6 +163,84 @@ export default function LobbyView({
           </motion.div>
         </div>
 
+        {/* Game Settings Panel */}
+        {settings && (
+          <div className="mb-6 p-4 rounded-xl bg-surface-800/50 border border-white/5">
+            <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-4 flex items-center justify-between">
+              Game Settings
+              {!isHost && <span className="text-slate-500 text-[10px]">(Read Only)</span>}
+            </p>
+            
+            <div className="space-y-4">
+              {/* Mafia Counter */}
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-slate-300">Mafias</span>
+                <div className="flex items-center gap-3">
+                  {isHost && (
+                    <button 
+                      onClick={() => updateSetting('mafiaCount', Math.max(1, settings.mafiaCount - 1))}
+                      className="w-6 h-6 rounded-full bg-surface-700 hover:bg-surface-600 flex items-center justify-center text-slate-300 transition-colors"
+                    >-</button>
+                  )}
+                  <div className="w-4 h-6 relative overflow-hidden flex items-center justify-center">
+                    <AnimatePresence mode="popLayout">
+                      <motion.span
+                        key={settings.mafiaCount}
+                        initial={{ y: 20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: -20, opacity: 0 }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                        className="text-sm font-bold text-red-400 absolute"
+                      >
+                        {settings.mafiaCount}
+                      </motion.span>
+                    </AnimatePresence>
+                  </div>
+                  {isHost && (
+                    <button 
+                      onClick={() => updateSetting('mafiaCount', settings.mafiaCount + 1)}
+                      className="w-6 h-6 rounded-full bg-surface-700 hover:bg-surface-600 flex items-center justify-center text-slate-300 transition-colors"
+                    >+</button>
+                  )}
+                </div>
+              </div>
+
+              {/* Special Roles */}
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-slate-300">Include Doctor</span>
+                <button 
+                  onClick={() => isHost && updateSetting('hasDoctor', !settings.hasDoctor)}
+                  className={`w-10 h-5 rounded-full relative transition-colors ${settings.hasDoctor ? 'bg-green-500' : 'bg-surface-700'}`}
+                  disabled={!isHost}
+                >
+                  <motion.div 
+                    layout
+                    className="w-4 h-4 rounded-full bg-white absolute top-0.5"
+                    animate={{ left: settings.hasDoctor ? '22px' : '2px' }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  />
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-slate-300">Include Detective</span>
+                <button 
+                  onClick={() => isHost && updateSetting('hasDetective', !settings.hasDetective)}
+                  className={`w-10 h-5 rounded-full relative transition-colors ${settings.hasDetective ? 'bg-blue-500' : 'bg-surface-700'}`}
+                  disabled={!isHost}
+                >
+                  <motion.div 
+                    layout
+                    className="w-4 h-4 rounded-full bg-white absolute top-0.5"
+                    animate={{ left: settings.hasDetective ? '22px' : '2px' }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Waiting / Start */}
         {isHost ? (
           <div className="space-y-3">
@@ -164,15 +252,22 @@ export default function LobbyView({
             >
               + Add Bot
             </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="btn btn-primary w-full"
-              onClick={handleStart}
-              disabled={players.length < 2}
-            >
-              {players.length < 2 ? 'Waiting for players...' : 'Start Game'}
-            </motion.button>
+            <div className="space-y-2">
+              <motion.button
+                whileHover={{ scale: tooManyMafia || players.length < 2 ? 1 : 1.02 }}
+                whileTap={{ scale: tooManyMafia || players.length < 2 ? 1 : 0.98 }}
+                className={`btn w-full ${tooManyMafia || players.length < 2 ? 'opacity-50 cursor-not-allowed bg-surface-600 text-slate-400' : 'btn-primary'}`}
+                onClick={handleStart}
+                disabled={players.length < 2 || tooManyMafia}
+              >
+                {players.length < 2 ? 'Waiting for players...' : 'Start Game'}
+              </motion.button>
+              {tooManyMafia && (
+                <p className="text-xs text-red-400 text-center animate-pulse">
+                  Too many Mafias for current player count!
+                </p>
+              )}
+            </div>
           </div>
         ) : (
           <div className="text-center">

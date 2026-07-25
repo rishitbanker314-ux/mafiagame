@@ -57,6 +57,7 @@ function initializeRoles() {
   const Villager = require('./Villager');
   const Doctor = require('./Doctor');
   const Vigilante = require('./Vigilante');
+  const Detective = require('./Detective');
   const Mafia = require('./Mafia');
 
   // Guard against double-initialization
@@ -65,6 +66,7 @@ function initializeRoles() {
   registerRole('Villager', Villager);
   registerRole('Doctor', Doctor);
   registerRole('Vigilante', Vigilante);
+  registerRole('Detective', Detective);
   registerRole('Mafia', Mafia);
 }
 

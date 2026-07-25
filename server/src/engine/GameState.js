@@ -20,6 +20,11 @@ function createGameState(roomId) {
     players: {},
     actionQueue: [],
     votes: {},
+    settings: {
+      mafiaCount: 1,
+      hasDoctor: true,
+      hasDetective: false,
+    },
   };
 }
 

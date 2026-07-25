@@ -49,6 +49,12 @@ export interface RevealedRole {
 
 type Phase = 'join' | 'lobby' | 'night' | 'day' | 'game_over';
 
+export interface GameSettings {
+  mafiaCount: number;
+  hasDoctor: boolean;
+  hasDetective: boolean;
+}
+
 // ── App ────────────────────────────────────────────────────────────────
 
 export default function App() {
@@ -61,6 +67,7 @@ export default function App() {
   const [votes, setVotes] = useState<Record<string, number>>({});
   const [winner, setWinner] = useState<string | null>(null);
   const [revealedRoles, setRevealedRoles] = useState<RevealedRole[]>([]);
+  const [settings, setSettings] = useState<GameSettings>({ mafiaCount: 1, hasDoctor: true, hasDetective: false });
   const [connected, setConnected] = useState(socket.connected);
 
   // ── Socket.io event listeners with proper cleanup ───────────────────
@@ -85,8 +92,9 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    function onUpdateLobby(data: { players: Player[] }) {
+    function onUpdateLobby(data: { players: Player[], settings?: GameSettings }) {
       setPlayers(data.players);
+      if (data.settings) setSettings(data.settings);
     }
 
     socket.on('update_lobby', onUpdateLobby);
@@ -173,6 +181,29 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    function onInvestigationResult(data: { targetId: string, team: string }) {
+      const targetName = players.find((p) => p.id === data.targetId)?.name || 'Unknown';
+      setChatMessages((prev) => [
+        ...prev,
+        {
+          id: `investigation-${Date.now()}`,
+          senderId: 'system',
+          senderName: 'System',
+          text: `Your investigation revealed that ${targetName} is aligned with the ${data.team}.`,
+          isGhost: false,
+          isSystem: true,
+        }
+      ]);
+    }
+    
+    socket.on('investigation_result', onInvestigationResult);
+    
+    return () => {
+      socket.off('investigation_result', onInvestigationResult);
+    };
+  }, [players]);
+
+  useEffect(() => {
     function onVoteUpdate(data: { votes: Record<string, number> }) {
       setVotes(data.votes);
     }
@@ -243,6 +274,7 @@ export default function App() {
                   socket={socket}
                   roomCode={roomCode}
                   players={players}
+                  settings={settings}
                   mySocketId={socket.id ?? ''}
                 />
               )}

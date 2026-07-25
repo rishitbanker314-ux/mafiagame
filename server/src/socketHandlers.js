@@ -37,11 +37,25 @@ function shuffle(arr) {
  * @param {number} playerCount
  * @returns {string[]}
  */
-function buildRoleList(playerCount) {
-  const roles = ['Mafia', 'Doctor', 'Vigilante'];
+function buildRoleList(playerCount, settings) {
+  const roles = [];
+  
+  for (let i = 0; i < settings.mafiaCount; i++) {
+    roles.push('Mafia');
+  }
+  
+  if (settings.hasDoctor && roles.length < playerCount) {
+    roles.push('Doctor');
+  }
+  
+  if (settings.hasDetective && roles.length < playerCount) {
+    roles.push('Detective');
+  }
+  
   while (roles.length < playerCount) {
     roles.push('Villager');
   }
+  
   return shuffle(roles);
 }
 
@@ -57,6 +71,23 @@ function buildRoleList(playerCount) {
  */
 function registerHandlers(io, socket) {
   // ── 1. Lobby Management ─────────────────────────────────────────────
+
+  socket.on('update_settings', (newSettings, callback) => {
+    try {
+      const roomCode = socket.data.roomCode;
+      const state = getRoom(roomCode);
+      if (!state) throw new Error('Room not found.');
+      if (state.hostId !== socket.id) throw new Error('Only the host can update settings.');
+      if (state.phase !== 'lobby') throw new Error('Game already started.');
+
+      state.settings = { ...state.settings, ...newSettings };
+      
+      io.to(roomCode).emit('update_lobby', { players: getPlayerList(state), settings: state.settings });
+      if (callback) callback({ success: true });
+    } catch (err) {
+      if (callback) callback({ success: false, error: err.message });
+    }
+  });
 
   socket.on('create_room', ({ playerName } = {}, callback) => {
     try {
@@ -83,6 +114,7 @@ function registerHandlers(io, socket) {
       // Broadcast updated lobby to all players in the room
       io.to(roomCode).emit('update_lobby', {
         players: getPlayerList(state),
+        settings: state.settings
       });
 
       if (callback) callback({ success: true });
@@ -115,7 +147,7 @@ function registerHandlers(io, socket) {
         isBot: true,
       };
 
-      io.to(roomCode).emit('update_lobby', { players: getPlayerList(state) });
+      io.to(roomCode).emit('update_lobby', { players: getPlayerList(state), settings: state.settings });
       console.log(`[Room ${roomCode}] Bot ${botName} added by host`);
 
       if (callback) callback({ success: true });
@@ -136,7 +168,7 @@ function registerHandlers(io, socket) {
       if (playerIds.length < 2) throw new Error('Need at least 2 players to start.');
 
       // Build and assign roles via the registry (no concrete imports here)
-      const roleNames = buildRoleList(playerIds.length);
+      const roleNames = buildRoleList(playerIds.length, state.settings);
       playerIds.forEach((pid, idx) => {
         state.players[pid].role = createRole(roleNames[idx]);
       });
@@ -199,7 +231,17 @@ function registerHandlers(io, socket) {
           wasAlive[pid] = state.players[pid].isAlive;
         }
 
-        resolveNightPhase(state);
+        const results = resolveNightPhase(state);
+
+        // Process any investigation results and send them privately to the detectives
+        results.forEach((res) => {
+          if (res.type === 'investigate') {
+            io.to(res.sourceId).emit('investigation_result', {
+              targetId: res.targetId,
+              team: res.result.team,
+            });
+          }
+        });
 
         // Diff to find who was killed (decoupled — no action-type branching)
         const killed = Object.keys(state.players)
@@ -368,7 +410,7 @@ function registerHandlers(io, socket) {
         
         // We broadcast an update_lobby so clients see the dead player
         // This triggers the elimination animation on the frontend
-        io.to(roomCode).emit('update_lobby', { players: getPlayerList(state) });
+        io.to(roomCode).emit('update_lobby', { players: getPlayerList(state), settings: state.settings });
 
         // Check win condition after elimination
         if (handleWinCondition(io, roomCode, state)) {
@@ -413,7 +455,7 @@ function registerHandlers(io, socket) {
       state.phase = 'lobby';
 
       io.to(roomCode).emit('phase_change', { phase: 'lobby' });
-      io.to(roomCode).emit('update_lobby', { players: getPlayerList(state) });
+      io.to(roomCode).emit('update_lobby', { players: getPlayerList(state), settings: state.settings });
 
       console.log(`[Room ${roomCode}] Game reset to lobby by host`);
       
@@ -448,6 +490,7 @@ function registerHandlers(io, socket) {
 
     io.to(roomCode).emit('update_lobby', {
       players: getPlayerList(state),
+      settings: state.settings
     });
 
     // Check if night should auto-resolve after disconnect
@@ -457,7 +500,17 @@ function registerHandlers(io, socket) {
         wasAlive[pid] = state.players[pid].isAlive;
       }
 
-      resolveNightPhase(state);
+      const results = resolveNightPhase(state);
+
+      // Process any investigation results and send them privately to the detectives
+      results.forEach((res) => {
+        if (res.type === 'investigate') {
+          io.to(res.sourceId).emit('investigation_result', {
+            targetId: res.targetId,
+            team: res.result.team,
+          });
+        }
+      });
 
       const killed = Object.keys(state.players)
         .filter((pid) => wasAlive[pid] && !state.players[pid].isAlive)
