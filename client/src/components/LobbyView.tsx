@@ -238,6 +238,22 @@ export default function LobbyView({
                   />
                 </button>
               </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-slate-300">Include Jester</span>
+                <button 
+                  onClick={() => isHost && updateSetting('hasJester', !settings.hasJester)}
+                  className={`w-10 h-5 rounded-full relative transition-colors ${settings.hasJester ? 'bg-fuchsia-500' : 'bg-surface-700'}`}
+                  disabled={!isHost}
+                >
+                  <motion.div 
+                    layout
+                    className="w-4 h-4 rounded-full bg-white absolute top-0.5"
+                    animate={{ left: settings.hasJester ? '22px' : '2px' }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  />
+                </button>
+              </div>
             </div>
           </div>
         )}
