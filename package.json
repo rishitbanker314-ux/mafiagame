@@ -1,0 +1,23 @@
+{
+  "name": "mafia-game",
+  "version": "1.0.0",
+  "description": "Multiplayer Mafia game — React + Tailwind frontend, Node.js + Socket.io backend",
+  "private": true,
+  "scripts": {
+    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd client && npm run dev",
+    "test": "cd server && npm test",
+    "test:watch": "cd server && npm run test:watch"
+  },
+  "keywords": [
+    "mafia",
+    "game",
+    "multiplayer",
+    "socket.io",
+    "react"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.62.0"
+  }
+}

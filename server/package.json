@@ -1,0 +1,29 @@
+{
+  "name": "mafia-server",
+  "version": "1.0.0",
+  "description": "Multiplayer Mafia game server with Socket.io",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "test": "jest --verbose",
+    "test:watch": "jest --watch --verbose"
+  },
+  "keywords": [
+    "mafia",
+    "game",
+    "socket.io",
+    "multiplayer"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
+    "socket.io": "^4.8.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.0",
+    "socket.io-client": "^4.8.3"
+  }
+}
