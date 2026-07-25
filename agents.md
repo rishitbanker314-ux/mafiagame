@@ -122,3 +122,9 @@ The engine depends only on the abstract `Role` interface. Concrete roles depend 
 | Priority Queue for night phase | Actions queued, sorted by priority, resolved at phase end |
 | Decoupled engine | Engine imports only base `Role`; never concrete role classes |
 | Jest testing | All roles and engine logic must have unit test coverage |
+
+---
+
+## 6. Auto-Push Requirement
+
+Whenever changes are made to the codebase in response to a user request, the agent **must** automatically commit the changes and push them to the GitHub repository (`origin main`) without waiting for explicit permission.
