@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { Socket } from 'socket.io-client';
+import { motion } from 'framer-motion';
 
 interface Player {
   id: string;
@@ -31,6 +32,19 @@ const ROLE_DESCRIPTIONS: Record<string, string> = {
   Villager: 'You have no night action — sleep tight',
 };
 
+const listVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, x: -20 },
+  show: { opacity: 1, x: 0 },
+};
+
 export default function NightView({
   socket,
   myRole,
@@ -38,7 +52,6 @@ export default function NightView({
   mySocketId,
 }: NightViewProps) {
   const [submitted, setSubmitted] = useState(false);
-  const [selectedTarget, setSelectedTarget] = useState<string | null>(null);
 
   const emoji = ROLE_EMOJIS[myRole.roleName] || '❓';
   const description =
@@ -55,7 +68,6 @@ export default function NightView({
   function handleTarget(targetId: string) {
     if (submitted) return;
 
-    setSelectedTarget(targetId);
     setSubmitted(true);
 
     socket.emit(
@@ -66,7 +78,6 @@ export default function NightView({
           console.error('submit_action failed:', res.error);
           // Allow retry on error
           setSubmitted(false);
-          setSelectedTarget(null);
         }
       }
     );
@@ -74,10 +85,14 @@ export default function NightView({
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="glass-card glow-border w-full max-w-sm p-8 animate-fade-in">
+      <motion.div 
+        className="glass-card glow-border w-full max-w-sm p-8 border-red-500/20"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+      >
         {/* Night header */}
         <div className="text-center mb-2">
-          <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
+          <p className="text-xs font-medium text-red-400 uppercase tracking-wider">
             🌙 Night Phase
           </p>
         </div>
@@ -92,7 +107,7 @@ export default function NightView({
         </div>
 
         {/* Divider */}
-        <div className="h-px bg-white/5 mb-6" />
+        <div className="h-px bg-red-500/10 mb-6" />
 
         {/* Target list or waiting message */}
         {!hasNightAction ? (
@@ -106,9 +121,9 @@ export default function NightView({
           </div>
         ) : submitted ? (
           <div className="text-center py-8">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/20 mb-3">
-              <div className="w-2 h-2 rounded-full bg-purple-400 animate-pulse-slow" />
-              <span className="text-sm text-purple-300 font-medium">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-500/10 border border-red-500/20 mb-3">
+              <div className="w-2 h-2 rounded-full bg-red-400 animate-pulse-slow" />
+              <span className="text-sm text-red-300 font-medium">
                 Action submitted
               </span>
             </div>
@@ -121,26 +136,32 @@ export default function NightView({
             <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-3">
               Choose Target
             </p>
-            <div className="space-y-2 stagger-children">
+            <motion.div 
+              className="space-y-2"
+              variants={listVariants}
+              initial="hidden"
+              animate="show"
+            >
               {targets.map((player) => (
-                <button
+                <motion.button
                   key={player.id}
-                  className="btn-target"
+                  variants={itemVariants}
+                  whileHover={{ scale: 1.02, backgroundColor: "rgba(239, 68, 68, 0.15)", borderColor: "rgba(239, 68, 68, 0.4)" }}
+                  whileTap={{ scale: 0.98 }}
+                  className="btn-target w-full text-left flex items-center gap-3 p-3 rounded-xl border border-white/5 bg-surface-700/50"
                   onClick={() => handleTarget(player.id)}
                   disabled={submitted}
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center text-white text-sm font-bold shrink-0">
-                      {player.name.charAt(0).toUpperCase()}
-                    </div>
-                    <span>{player.name}</span>
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center text-white text-sm font-bold shrink-0">
+                    {player.name.charAt(0).toUpperCase()}
                   </div>
-                </button>
+                  <span>{player.name}</span>
+                </motion.button>
               ))}
-            </div>
+            </motion.div>
           </>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 }

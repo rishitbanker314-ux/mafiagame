@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import type { Socket } from 'socket.io-client';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Player {
   id: string;
@@ -28,6 +29,19 @@ interface DayViewProps {
   votes: Record<string, number>;
   mySocketId: string;
 }
+
+const listVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.05 },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 10 },
+  show: { opacity: 1, y: 0 },
+};
 
 export default function DayView({
   socket,
@@ -63,7 +77,11 @@ export default function DayView({
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4">
-      <div className="glass-card glow-border w-full max-w-2xl flex flex-col md:flex-row h-[85vh] animate-fade-in overflow-hidden">
+      <motion.div 
+        className="glass-card glow-border w-full max-w-2xl flex flex-col md:flex-row h-[85vh] overflow-hidden"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+      >
         
         {/* Left column: Info & Voting */}
         <div className="w-full md:w-1/2 p-6 flex flex-col border-b md:border-b-0 md:border-r border-white/10 overflow-y-auto">
@@ -76,24 +94,36 @@ export default function DayView({
           </div>
 
           {/* Night results */}
-          {killed.length > 0 ? (
-            <div className="mb-6 p-4 rounded-lg bg-red-500/10 border border-red-500/15 shrink-0 animate-fade-in">
-              <p className="text-sm font-medium text-red-400 mb-2">
-                💀 Eliminated last night:
-              </p>
-              {killed.map((k) => (
-                <p key={k.playerId} className="text-white font-semibold">
-                  {k.playerName}
+          <AnimatePresence mode="wait">
+            {killed.length > 0 ? (
+              <motion.div 
+                key="killed"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-6 p-4 rounded-lg bg-red-500/10 border border-red-500/15 shrink-0"
+              >
+                <p className="text-sm font-medium text-red-400 mb-2">
+                  💀 Eliminated last night:
                 </p>
-              ))}
-            </div>
-          ) : (
-            <div className="mb-6 p-4 rounded-lg bg-green-500/10 border border-green-500/15 shrink-0 animate-fade-in">
-              <p className="text-sm font-medium text-green-400">
-                🛡️ Nobody was eliminated last night!
-              </p>
-            </div>
-          )}
+                {killed.map((k) => (
+                  <p key={k.playerId} className="text-white font-semibold">
+                    {k.playerName}
+                  </p>
+                ))}
+              </motion.div>
+            ) : (
+              <motion.div 
+                key="safe"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-6 p-4 rounded-lg bg-green-500/10 border border-green-500/15 shrink-0"
+              >
+                <p className="text-sm font-medium text-green-400">
+                  🛡️ Nobody was eliminated last night!
+                </p>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <div className="h-px bg-white/5 mb-6 shrink-0" />
 
@@ -114,12 +144,20 @@ export default function DayView({
               </p>
             )}
 
-            <div className="space-y-2 stagger-children">
+            <motion.div 
+              className="space-y-2"
+              variants={listVariants}
+              initial="hidden"
+              animate="show"
+            >
               {alivePlayers.map((player) => {
                 const voteCount = votes[player.id] || 0;
                 return (
-                  <button
+                  <motion.button
                     key={player.id}
+                    variants={itemVariants}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={() => handleVote(player.id)}
                     disabled={!me?.isAlive}
                     className="w-full flex items-center justify-between px-4 py-3 rounded-lg bg-surface-700/50 hover:bg-purple-500/10 border border-transparent hover:border-purple-500/30 transition-all text-left group disabled:opacity-50 disabled:hover:bg-surface-700/50 disabled:cursor-not-allowed"
@@ -131,14 +169,19 @@ export default function DayView({
                       </span>
                     </div>
                     {voteCount > 0 && (
-                      <span className="text-xs font-bold text-white bg-purple-500 px-2 py-1 rounded-full">
+                      <motion.span 
+                        initial={{ scale: 0 }} 
+                        animate={{ scale: 1 }} 
+                        key={voteCount} 
+                        className="text-xs font-bold text-white bg-purple-500 px-2 py-1 rounded-full"
+                      >
                         {voteCount} {voteCount === 1 ? 'vote' : 'votes'}
-                      </span>
+                      </motion.span>
                     )}
-                  </button>
+                  </motion.button>
                 );
               })}
-            </div>
+            </motion.div>
           </div>
         </div>
 
@@ -164,8 +207,10 @@ export default function DayView({
               chatMessages.map((msg) => {
                 const isMe = msg.senderId === mySocketId;
                 return (
-                  <div
+                  <motion.div
                     key={msg.id}
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
                     className={`flex flex-col max-w-[85%] ${
                       isMe ? 'ml-auto items-end' : 'mr-auto items-start'
                     }`}
@@ -184,7 +229,7 @@ export default function DayView({
                     >
                       {msg.text}
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })
             )}
@@ -229,7 +274,7 @@ export default function DayView({
             </div>
           </form>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

@@ -1,4 +1,7 @@
+import { useEffect } from 'react';
 import type { Socket } from 'socket.io-client';
+import { motion } from 'framer-motion';
+import confetti from 'canvas-confetti';
 import type { RevealedRole } from '../App';
 
 interface GameOverViewProps {
@@ -8,7 +11,53 @@ interface GameOverViewProps {
   isHost: boolean;
 }
 
+const listVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1, delayChildren: 0.5 },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, scale: 0.8, x: -20 },
+  show: { opacity: 1, scale: 1, x: 0 },
+};
+
 export default function GameOverView({ socket, winner, revealedRoles, isHost }: GameOverViewProps) {
+  useEffect(() => {
+    // Fire confetti when component mounts
+    const duration = 3000;
+    const end = Date.now() + duration;
+
+    const colors = winner === 'village' 
+      ? ['#4ade80', '#22c55e', '#ffffff'] 
+      : winner === 'mafia'
+      ? ['#ef4444', '#b91c1c', '#000000']
+      : ['#facc15', '#eab308', '#ffffff'];
+
+    (function frame() {
+      confetti({
+        particleCount: 5,
+        angle: 60,
+        spread: 55,
+        origin: { x: 0 },
+        colors: colors
+      });
+      confetti({
+        particleCount: 5,
+        angle: 120,
+        spread: 55,
+        origin: { x: 1 },
+        colors: colors
+      });
+
+      if (Date.now() < end) {
+        requestAnimationFrame(frame);
+      }
+    }());
+  }, [winner]);
+
   function handlePlayAgain() {
     socket.emit('reset_game');
   }
@@ -30,22 +79,43 @@ export default function GameOverView({ socket, winner, revealedRoles, isHost }: 
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4">
-      <div className="glass-card glow-border max-w-2xl w-full p-8 text-center animate-fade-in-up">
+      <motion.div 
+        className="glass-card glow-border max-w-2xl w-full p-8 text-center"
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, type: 'spring' }}
+      >
         
         {/* Massive Header */}
-        <h1 className={`text-4xl md:text-6xl font-black uppercase tracking-widest mb-8 ${headerColor} animate-float`}>
+        <motion.h1 
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
+          className={`text-4xl md:text-6xl font-black uppercase tracking-widest mb-8 ${headerColor} animate-float`}
+        >
           {headerText}
-        </h1>
+        </motion.h1>
 
         {/* Role Reveal List */}
-        <div className="bg-surface-800/80 rounded-xl border border-white/10 overflow-hidden mb-8 text-left">
+        <motion.div 
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          transition={{ delay: 0.4 }}
+          className="bg-surface-800/80 rounded-xl border border-white/10 overflow-hidden mb-8 text-left"
+        >
           <div className="p-4 border-b border-white/5 bg-surface-900/50">
             <h2 className="text-lg font-bold text-slate-200">Role Reveal</h2>
           </div>
           
-          <div className="divide-y divide-white/5 max-h-[40vh] overflow-y-auto">
+          <motion.div 
+            className="divide-y divide-white/5 max-h-[40vh] overflow-y-auto"
+            variants={listVariants}
+            initial="hidden"
+            animate="show"
+          >
             {revealedRoles.map((player) => (
-              <div 
+              <motion.div 
+                variants={itemVariants}
                 key={player.playerName} 
                 className="p-4 flex items-center justify-between hover:bg-white/5 transition-colors"
               >
@@ -72,25 +142,35 @@ export default function GameOverView({ socket, winner, revealedRoles, isHost }: 
                     {player.roleName}
                   </span>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Play Again Button (Host Only) */}
         {isHost ? (
-          <button
+          <motion.button
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={handlePlayAgain}
-            className="w-full md:w-auto px-8 py-4 rounded-full bg-purple-600 hover:bg-purple-500 text-white font-bold tracking-wider uppercase transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(147,51,234,0.3)] hover:shadow-[0_0_30px_rgba(147,51,234,0.5)]"
+            className="w-full md:w-auto px-8 py-4 rounded-full bg-purple-600 hover:bg-purple-500 text-white font-bold tracking-wider uppercase transition-all shadow-[0_0_20px_rgba(147,51,234,0.3)] hover:shadow-[0_0_30px_rgba(147,51,234,0.5)]"
           >
             Play Again
-          </button>
+          </motion.button>
         ) : (
-          <p className="text-slate-400 animate-pulse-slow">
+          <motion.p 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1 }}
+            className="text-slate-400 animate-pulse-slow"
+          >
             Waiting for host to restart the game...
-          </p>
+          </motion.p>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 }

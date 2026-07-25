@@ -1,4 +1,5 @@
 import type { Socket } from 'socket.io-client';
+import { motion } from 'framer-motion';
 
 interface Player {
   id: string;
@@ -12,6 +13,23 @@ interface LobbyViewProps {
   players: Player[];
   mySocketId: string;
 }
+
+const listVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, scale: 0.8 },
+  show: { 
+    opacity: 1, 
+    scale: 1,
+    transition: { type: 'spring' as const, stiffness: 300, damping: 20 }
+  },
+};
 
 export default function LobbyView({
   socket,
@@ -35,13 +53,19 @@ export default function LobbyView({
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="glass-card glow-border w-full max-w-sm p-8 animate-fade-in">
+      <motion.div 
+        className="glass-card glow-border w-full max-w-sm p-8"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+      >
         {/* Room Code */}
         <div className="text-center mb-8">
           <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
             Room Code
           </p>
-          <button
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={copyCode}
             className="group inline-flex items-center gap-2 cursor-pointer bg-transparent border-none"
             title="Click to copy"
@@ -62,7 +86,7 @@ export default function LobbyView({
                 d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
               />
             </svg>
-          </button>
+          </motion.button>
           <p className="text-xs text-slate-500 mt-1">Share this code with friends</p>
         </div>
 
@@ -74,10 +98,16 @@ export default function LobbyView({
           <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-3">
             Players ({players.length})
           </p>
-          <div className="space-y-2 stagger-children">
+          <motion.div 
+            className="space-y-2"
+            variants={listVariants}
+            initial="hidden"
+            animate="show"
+          >
             {players.map((player, idx) => (
-              <div
+              <motion.div
                 key={player.id}
+                variants={itemVariants}
                 className="flex items-center gap-3 px-4 py-3 rounded-lg bg-surface-700/50"
               >
                 {/* Avatar circle */}
@@ -103,20 +133,22 @@ export default function LobbyView({
                     You
                   </span>
                 )}
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
 
         {/* Waiting / Start */}
         {isHost ? (
-          <button
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             className="btn btn-primary w-full"
             onClick={handleStart}
             disabled={players.length < 2}
           >
             {players.length < 2 ? 'Waiting for players...' : 'Start Game'}
-          </button>
+          </motion.button>
         ) : (
           <div className="text-center">
             <p className="text-sm text-slate-400 animate-pulse-slow">
@@ -124,7 +156,7 @@ export default function LobbyView({
             </p>
           </div>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 }
