@@ -40,7 +40,7 @@ export default function NightView({
   socket,
   myRole,
   players,
-  mySocketId,
+  mySessionId,
 }: NightViewProps) {
   const [submitted, setSubmitted] = useState(false);
 
@@ -50,7 +50,7 @@ export default function NightView({
 
   // Other players (exclude self)
   const targets = players.filter(
-    (p) => p.id !== mySocketId
+    (p) => p.id !== mySessionId
   );
 
   // Villager has no night action

@@ -29,15 +29,16 @@ function generateRoomCode() {
 
 /**
  * Create a new room and add the host as the first player.
+ * @param {string} sessionId
  * @param {string} hostSocketId
  * @param {string} hostName
  * @returns {{ code: string, state: object }}
  */
-function createRoomState(hostSocketId, hostName) {
+function createRoomState(sessionId, hostSocketId, hostName) {
   const code = generateRoomCode();
   const state = createGameState(code);
-  addPlayer(state, hostSocketId, hostName);
-  state.hostId = hostSocketId;
+  addPlayer(state, sessionId, hostName, hostSocketId);
+  state.hostId = sessionId;
   state.pendingActions = new Set();
   rooms.set(code, state);
   return { code, state };
@@ -46,15 +47,16 @@ function createRoomState(hostSocketId, hostName) {
 /**
  * Join an existing room.
  * @param {string} code — Room code
+ * @param {string} sessionId
  * @param {string} socketId
  * @param {string} playerName
  * @returns {object} — The room's game state
  */
-function joinRoomState(code, socketId, playerName) {
+function joinRoomState(code, sessionId, socketId, playerName) {
   const state = rooms.get(code);
   if (!state) throw new Error(`Room ${code} not found.`);
   if (state.phase !== 'lobby') throw new Error('Game already in progress.');
-  addPlayer(state, socketId, playerName);
+  addPlayer(state, sessionId, playerName, socketId);
   return state;
 }
 
@@ -77,6 +79,7 @@ function getPlayerList(state) {
     id: p.id,
     name: p.name,
     isAlive: p.isAlive,
+    connected: p.connected,
   }));
 }
 

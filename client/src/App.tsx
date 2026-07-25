@@ -8,6 +8,7 @@ import NightView from './components/NightView';
 import DayView from './components/DayView';
 import GameOverView from './components/GameOverView';
 import VoteAnimator from './components/VoteAnimator';
+import ProgressBar from './components/ProgressBar';
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -18,6 +19,7 @@ export interface Player {
   role?: string;
   socketId?: string; // Add socketId for animation tracking
   isBot?: boolean;
+  connected?: boolean;
 }
 
 export interface RoleInfo {
@@ -69,6 +71,17 @@ export default function App() {
   const [revealedRoles, setRevealedRoles] = useState<RevealedRole[]>([]);
   const [settings, setSettings] = useState<GameSettings>({ mafiaCount: 1, hasDoctor: true, hasDetective: false });
   const [connected, setConnected] = useState(socket.connected);
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
+
+  // ── Session Initialization ─────────────────────────────────────────────
+  
+  useEffect(() => {
+    let sessionToken = localStorage.getItem('sessionToken');
+    if (!sessionToken) {
+      sessionToken = Math.random().toString(36).substring(2, 15);
+      localStorage.setItem('sessionToken', sessionToken);
+    }
+  }, []);
 
   // ── Socket.io event listeners with proper cleanup ───────────────────
   // Each useEffect returns a cleanup function that calls socket.off()
@@ -77,6 +90,24 @@ export default function App() {
   useEffect(() => {
     function onConnect() {
       setConnected(true);
+      const roomCode = localStorage.getItem('roomCode');
+      const sessionId = localStorage.getItem('sessionToken');
+      if (roomCode && sessionId) {
+        socket.emit('reconnect_session', { roomCode, sessionId }, (res: any) => {
+          if (res.success && res.gameState) {
+            setRoomCode(roomCode);
+            setPhase(res.gameState.phase);
+            setPlayers(res.gameState.players);
+            if (res.gameState.settings) setSettings(res.gameState.settings);
+            if (res.gameState.myRole) setMyRole(res.gameState.myRole);
+            if (res.gameState.votes) setVotes(res.gameState.votes);
+            if (res.gameState.winner) setWinner(res.gameState.winner);
+            if (res.gameState.timerLeft) setTimeLeft(res.gameState.timerLeft);
+          } else {
+            localStorage.removeItem('roomCode');
+          }
+        });
+      }
     }
     function onDisconnect() {
       setConnected(false);
@@ -136,6 +167,7 @@ export default function App() {
         setRevealedRoles([]);
       } else if (data.phase === 'game_over') {
         setPhase('game_over');
+        setTimeLeft(null);
       }
     }
 
@@ -228,10 +260,23 @@ export default function App() {
     };
   }, []);
 
+  useEffect(() => {
+    function onTimerTick(data: { timeLeft: number }) {
+      setTimeLeft(data.timeLeft);
+    }
+
+    socket.on('timer_tick', onTimerTick);
+
+    return () => {
+      socket.off('timer_tick', onTimerTick);
+    };
+  }, []);
+
   // ── Callbacks ───────────────────────────────────────────────────────
 
   const handleJoined = useCallback((code: string, _name: string) => {
     setRoomCode(code);
+    localStorage.setItem('roomCode', code);
     setPhase('lobby');
   }, []);
 
@@ -241,6 +286,10 @@ export default function App() {
     <VoteAnimator>
       <div className="relative min-h-screen text-white overflow-hidden selection:bg-purple-500/30">
         <Background phase={phase} winner={winner} />
+        
+        {timeLeft !== null && (phase === 'day' || phase === 'night') && (
+          <ProgressBar timeLeft={timeLeft} maxTime={60} />
+        )}
 
         {/* Connection indicator */}
         <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
@@ -275,7 +324,7 @@ export default function App() {
                   roomCode={roomCode}
                   players={players}
                   settings={settings}
-                  mySocketId={socket.id ?? ''}
+                  mySessionId={localStorage.getItem('sessionToken') ?? ''}
                 />
               )}
 
@@ -284,7 +333,7 @@ export default function App() {
                   socket={socket}
                   myRole={myRole}
                   players={players}
-                  mySocketId={socket.id ?? ''}
+                  mySessionId={localStorage.getItem('sessionToken') ?? ''}
                 />
               )}
 
@@ -295,7 +344,7 @@ export default function App() {
                   killed={killed}
                   chatMessages={chatMessages}
                   votes={votes}
-                  mySocketId={socket.id ?? ''}
+                  mySessionId={localStorage.getItem('sessionToken') ?? ''}
                 />
               )}
 
@@ -304,7 +353,7 @@ export default function App() {
                   socket={socket}
                   winner={winner}
                   revealedRoles={revealedRoles}
-                  isHost={players[0]?.id === socket.id} // First player in lobby is host
+                  isHost={players.length > 0 ? (players[0].id === localStorage.getItem('sessionToken')) : false}
                 />
               )}
             </motion.div>

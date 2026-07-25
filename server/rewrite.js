@@ -1,4 +1,5 @@
-/**
+const fs = require('fs');
+const content = `/**
  * Socket Handlers — All Socket.io event listeners.
  */
 const { createRoomState, joinRoomState, getRoom, getPlayerList } = require('./rooms');
@@ -78,7 +79,7 @@ function resolveNightAndTransition(io, roomCode, state) {
           id: Math.random().toString(36).substr(2, 9),
           senderId: 'system',
           senderName: 'System',
-          text: `${k.playerName} was eliminated during the night.`,
+          text: \`\${k.playerName} was eliminated during the night.\`,
           isGhost: false,
           isSystem: true
         });
@@ -88,7 +89,7 @@ function resolveNightAndTransition(io, roomCode, state) {
         id: Math.random().toString(36).substr(2, 9),
         senderId: 'system',
         senderName: 'System',
-        text: `Nobody was eliminated last night.`,
+        text: \`Nobody was eliminated last night.\`,
         isGhost: false,
         isSystem: true
       });
@@ -103,7 +104,7 @@ function forceDayResolution(io, roomCode, state) {
     id: Math.random().toString(36).substr(2, 9),
     senderId: 'system',
     senderName: 'System',
-    text: `Time ran out! The town failed to reach a consensus.`,
+    text: \`Time ran out! The town failed to reach a consensus.\`,
     isGhost: false,
     isSystem: true
   });
@@ -151,7 +152,7 @@ function registerHandlers(io, socket) {
       socket.data.roomCode = code;
       socket.data.sessionId = sessionId;
 
-      console.log(`[Room ${code}] Created by ${sessionId} (${playerName})`);
+      console.log(\`[Room \${code}] Created by \${sessionId} (\${playerName})\`);
       if (callback) callback({ success: true, roomCode: code });
     } catch (err) {
       if (callback) callback({ success: false, error: err.message });
@@ -166,7 +167,7 @@ function registerHandlers(io, socket) {
       socket.data.roomCode = roomCode;
       socket.data.sessionId = sessionId;
 
-      console.log(`[Room ${roomCode}] ${playerName} (${sessionId}) joined`);
+      console.log(\`[Room \${roomCode}] \${playerName} (\${sessionId}) joined\`);
       io.to(roomCode).emit('update_lobby', { players: getPlayerList(state), settings: state.settings });
 
       if (callback) callback({ success: true });
@@ -202,12 +203,11 @@ function registerHandlers(io, socket) {
             settings: state.settings,
             myRole: roleInfo,
             votes: state.votes,
-            winner: state.winner,
-            timerLeft: state.timerInfo ? state.timerInfo.timeLeft : 0
+            winner: state.winner
           }
         });
       }
-      console.log(`[Room ${roomCode}] Player ${player.name} reconnected.`);
+      console.log(\`[Room \${roomCode}] Player \${player.name} reconnected.\`);
     } catch (err) {
       if (callback) callback({ success: false, error: err.message });
     }
@@ -225,9 +225,9 @@ function registerHandlers(io, socket) {
       if (state.hostId !== sessionId) throw new Error('Only host can add bots.');
       
       const botCount = Object.values(state.players).filter(p => p.isBot).length;
-      const botId = `bot_${Math.random().toString(36).substr(2, 9)}`;
+      const botId = \`bot_\${Math.random().toString(36).substr(2, 9)}\`;
       const botNames = ['Alice', 'Bob', 'Charlie', 'Dave', 'Eve', 'Frank', 'Grace', 'Heidi', 'Ivan', 'Judy'];
-      const botName = `Bot ${botNames[botCount % botNames.length]}`;
+      const botName = \`Bot \${botNames[botCount % botNames.length]}\`;
       
       state.players[botId] = {
         id: botId,
@@ -240,7 +240,7 @@ function registerHandlers(io, socket) {
       };
 
       io.to(roomCode).emit('update_lobby', { players: getPlayerList(state), settings: state.settings });
-      console.log(`[Room ${roomCode}] Bot ${botName} added by host`);
+      console.log(\`[Room \${roomCode}] Bot \${botName} added by host\`);
       if (callback) callback({ success: true });
     } catch (err) {
       if (callback) callback({ success: false, error: err.message });
@@ -284,7 +284,7 @@ function registerHandlers(io, socket) {
       
       simulateBotNightActions(io, roomCode, state);
 
-      console.log(`[Room ${roomCode}] Game started — ${playerIds.length} players, night phase`);
+      console.log(\`[Room \${roomCode}] Game started — \${playerIds.length} players, night phase\`);
       if (callback) callback({ success: true });
     } catch (err) {
       if (callback) callback({ success: false, error: err.message });
@@ -310,7 +310,7 @@ function registerHandlers(io, socket) {
       player.role.nightAction(sessionId, targetId, state);
       state.pendingActions.delete(sessionId);
 
-      console.log(`[Room ${roomCode}] ${player.name} (${player.role.name}) submitted action → ${targetId}`);
+      console.log(\`[Room \${roomCode}] \${player.name} (\${player.role.name}) submitted action → \${targetId}\`);
       if (callback) callback({ success: true });
 
       if (state.pendingActions.size === 0) {
@@ -406,13 +406,13 @@ function registerHandlers(io, socket) {
         clearPhaseTimer(state);
         
         const votedOutPlayer = state.players[votedOutId];
-        console.log(`[Room ${roomCode}] ${votedOutPlayer.name} was voted out.`);
+        console.log(\`[Room \${roomCode}] \${votedOutPlayer.name} was voted out.\`);
 
         io.to(roomCode).emit('chat_message', {
           id: Math.random().toString(36).substr(2, 9),
           senderId: 'system',
           senderName: 'System',
-          text: `${votedOutPlayer.name} was voted out by the town.`,
+          text: \`\${votedOutPlayer.name} was voted out by the town.\`,
           isGhost: false,
           isSystem: true
         });
@@ -469,7 +469,7 @@ function registerHandlers(io, socket) {
       io.to(roomCode).emit('phase_change', { phase: 'lobby' });
       io.to(roomCode).emit('update_lobby', { players: getPlayerList(state), settings: state.settings });
 
-      console.log(`[Room ${roomCode}] Game reset to lobby by host`);
+      console.log(\`[Room \${roomCode}] Game reset to lobby by host\`);
       if (callback) callback({ success: true });
     } catch (err) {
       if (callback) callback({ success: false, error: err.message });
@@ -489,7 +489,7 @@ function registerHandlers(io, socket) {
     const player = state.players[sessionId];
     if (!player) return;
 
-    console.log(`[Room ${roomCode}] Player ${player.name} disconnected`);
+    console.log(\`[Room \${roomCode}] Player \${player.name} disconnected\`);
     player.connected = false;
 
     if (state.phase === 'lobby') {
@@ -503,8 +503,12 @@ function registerHandlers(io, socket) {
 
     if (state.phase === 'night' && state.pendingActions && state.pendingActions.has(sessionId)) {
       // Don't auto resolve, they might reconnect. But if timer runs out, it forces resolve.
+      // Alternatively, if they are the only pending, we could resolve, but we rely on timer now.
     }
   });
 }
 
 module.exports = { registerHandlers };
+\`;
+
+fs.writeFileSync('server/src/socketHandlers.js', content, 'utf8');

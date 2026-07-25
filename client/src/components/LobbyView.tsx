@@ -37,9 +37,10 @@ export default function LobbyView({
   socket,
   roomCode,
   players,
-  mySocketId,
+  mySessionId,
+  settings,
 }: LobbyViewProps) {
-  const isHost = players.length > 0 && players[0].id === mySocketId;
+  const isHost = players.length > 0 && players[0].id === mySessionId;
 
   function handleStart() {
     socket.emit('start_game', null, (res: { success: boolean; error?: string }) => {
@@ -153,7 +154,7 @@ export default function LobbyView({
                 )}
 
                 {/* You badge */}
-                {player.id === mySocketId && idx !== 0 && (
+                {player.id === mySessionId && idx !== 0 && (
                   <span className="ml-auto text-xs font-medium text-purple-400/80 bg-purple-400/10 px-2 py-0.5 rounded-full">
                     You
                   </span>

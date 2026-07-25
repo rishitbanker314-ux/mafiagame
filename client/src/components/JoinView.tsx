@@ -34,9 +34,10 @@ export default function JoinView({ socket, onJoined }: JoinViewProps) {
     setError('');
     setLoading(true);
 
+    const sessionId = localStorage.getItem('sessionToken');
     socket.emit(
       'create_room',
-      { playerName: name.trim() },
+      { playerName: name.trim(), sessionId },
       (res: { success: boolean; roomCode?: string; error?: string }) => {
         setLoading(false);
         if (res.success && res.roomCode) {
@@ -56,9 +57,10 @@ export default function JoinView({ socket, onJoined }: JoinViewProps) {
     setError('');
     setLoading(true);
 
+    const sessionId = localStorage.getItem('sessionToken');
     socket.emit(
       'create_room',
-      { playerName: name.trim() },
+      { playerName: name.trim(), sessionId },
       (res: { success: boolean; roomCode?: string; error?: string }) => {
         if (res.success && res.roomCode) {
           const roomCode = res.roomCode;
@@ -93,9 +95,10 @@ export default function JoinView({ socket, onJoined }: JoinViewProps) {
     setError('');
     setLoading(true);
 
+    const sessionId = localStorage.getItem('sessionToken');
     socket.emit(
       'join_room',
-      { roomCode: code.trim().toUpperCase(), playerName: name.trim() },
+      { roomCode: code.trim().toUpperCase(), playerName: name.trim(), sessionId },
       (res: { success: boolean; error?: string }) => {
         setLoading(false);
         if (res.success) {

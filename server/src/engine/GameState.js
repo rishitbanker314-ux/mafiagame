@@ -25,23 +25,27 @@ function createGameState(roomId) {
       hasDoctor: true,
       hasDetective: false,
     },
+    timerInfo: null,
   };
 }
 
 /**
  * Add a player to the game state.
  * @param {object} state — The game state
- * @param {string} playerId
+ * @param {string} playerId — This is now the sessionToken
  * @param {string} playerName
+ * @param {string} socketId — The current socket connection ID
  * @param {Role} [role=null] — Optional role assignment
  */
-function addPlayer(state, playerId, playerName, role = null) {
+function addPlayer(state, playerId, playerName, socketId, role = null) {
   state.players[playerId] = {
     id: playerId,
     name: playerName,
+    socketId,
     role,
     isAlive: true,
     isProtected: false,
+    connected: true,
   };
 }
 

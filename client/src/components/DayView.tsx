@@ -34,7 +34,7 @@ export default function DayView({
   killed,
   chatMessages,
   votes,
-  mySocketId,
+  mySessionId,
 }: DayViewProps) {
   const [message, setMessage] = useState('');
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -164,7 +164,7 @@ export default function DayView({
                   <PlayerCard
                     key={player.id}
                     player={player}
-                    isMe={player.id === mySocketId}
+                    isMe={player.id === mySessionId}
                     voteCount={voteCount}
                     onAction={handleVote}
                     disabled={!isMeAlive}
@@ -198,7 +198,7 @@ export default function DayView({
             ) : (
               <AnimatePresence initial={false}>
                 {chatMessages.map((msg) => {
-                  const isMe = msg.senderId === mySocketId;
+                  const isMe = msg.senderId === mySessionId;
                   
                   if (msg.isSystem) {
                     return (
