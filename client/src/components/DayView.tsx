@@ -1,26 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
+import type { Player, KilledPlayer, ChatMessage } from '../App';
+import PlayerCard from './PlayerCard';
 import type { Socket } from 'socket.io-client';
 import { motion, AnimatePresence } from 'framer-motion';
 
-interface Player {
-  id: string;
-  name: string;
-  isAlive: boolean;
-}
-
-interface KilledPlayer {
-  playerId: string;
-  playerName: string;
-}
-
-interface ChatMessage {
-  id: string;
-  senderId: string;
-  senderName: string;
-  text: string;
-  isGhost: boolean;
-  isSystem?: boolean;
-}
+// Types are imported from App
 
 interface DayViewProps {
   socket: Socket;
@@ -76,7 +60,10 @@ export default function DayView({
 
   const me = players.find((p) => p.id === mySocketId);
   
-  const alivePlayers = players.filter((p) => p.isAlive);
+  // Use all players so dead players remain in the DOM for animations
+  // Sorting dead players to the bottom could be an option, but for now just map all
+  // alivePlayers logic is kept for "You are dead" disabled states.
+  const isMeAlive = me?.isAlive ?? false;
 
   // Auto-scroll chat
   useEffect(() => {
@@ -92,7 +79,7 @@ export default function DayView({
   }
 
   function handleVote(targetId: string) {
-    if (!me?.isAlive) return;
+    if (!isMeAlive) return;
     socket.emit('submit_vote', { targetId });
   }
 
@@ -159,7 +146,7 @@ export default function DayView({
               </p>
             </div>
             
-            {!me?.isAlive && (
+            {!isMeAlive && (
               <p className="text-xs text-red-400 mb-3 bg-red-500/10 p-2 rounded text-center">
                 You are dead. You cannot vote.
               </p>
@@ -171,53 +158,19 @@ export default function DayView({
               initial="hidden"
               animate="show"
             >
-              {alivePlayers.map((player) => {
+              {players.map((player) => {
                 const voteCount = votes[player.id] || 0;
                 return (
-                  <motion.button
+                  <PlayerCard
                     key={player.id}
-                    id={`player-ref-${player.id}`}
-                    variants={itemVariants}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => handleVote(player.id)}
-                    disabled={!me?.isAlive}
-                    className={`w-full relative overflow-hidden flex items-center justify-between px-4 py-3 rounded-lg border transition-all text-left group disabled:opacity-50 disabled:cursor-not-allowed ${
-                      ripples.includes(player.id)
-                        ? 'bg-purple-500/20 border-purple-500'
-                        : 'bg-surface-700/50 hover:bg-purple-500/10 border-transparent hover:border-purple-500/30 disabled:hover:bg-surface-700/50'
-                    }`}
-                  >
-                    {/* Ripple overlay */}
-                    <AnimatePresence>
-                      {ripples.includes(player.id) && (
-                        <motion.div
-                          initial={{ opacity: 0.5, scale: 0 }}
-                          animate={{ opacity: 0, scale: 2 }}
-                          exit={{ opacity: 0 }}
-                          transition={{ duration: 0.5, ease: "easeOut" }}
-                          className="absolute inset-0 bg-purple-400 rounded-lg pointer-events-none"
-                        />
-                      )}
-                    </AnimatePresence>
-                    
-                    <div className="flex items-center gap-3 relative z-10">
-                      <div className="avatar-circle w-2 h-2 rounded-full bg-green-400 shrink-0" />
-                      <span className="text-slate-200 font-medium group-hover:text-purple-300">
-                        {player.name}
-                      </span>
-                    </div>
-                    {voteCount > 0 && (
-                      <motion.span 
-                        initial={{ scale: 0 }} 
-                        animate={{ scale: 1 }} 
-                        key={voteCount} 
-                        className="text-xs font-bold text-white bg-purple-500 px-2 py-1 rounded-full relative z-10"
-                      >
-                        {voteCount} {voteCount === 1 ? 'vote' : 'votes'}
-                      </motion.span>
-                    )}
-                  </motion.button>
+                    player={player}
+                    isMe={player.id === mySocketId}
+                    voteCount={voteCount}
+                    onAction={handleVote}
+                    disabled={!isMeAlive}
+                    itemVariants={itemVariants}
+                    hasRipple={ripples.includes(player.id)}
+                  />
                 );
               })}
             </motion.div>
@@ -229,7 +182,7 @@ export default function DayView({
           {/* Chat Header */}
           <div className="p-4 border-b border-white/10 shrink-0 flex items-center justify-between bg-surface-800/80">
             <h3 className="font-semibold text-slate-200">Town Square</h3>
-            {!me?.isAlive && (
+            {!isMeAlive && (
               <span className="text-xs font-medium text-teal-300 bg-teal-500/20 px-2 py-1 rounded-full animate-pulse-slow">
                 👻 Ghost Chat Active
               </span>
@@ -312,7 +265,7 @@ export default function DayView({
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder={
-                  me?.isAlive ? "Type a message..." : "Type a ghost message..."
+                  isMeAlive ? "Type a message..." : "Type a ghost message..."
                 }
                 className="w-full bg-surface-900 border border-white/10 rounded-full pl-4 pr-12 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500"
                 maxLength={200}

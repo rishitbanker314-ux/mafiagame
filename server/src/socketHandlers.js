@@ -223,40 +223,43 @@ function registerHandlers(io, socket) {
           return;
         }
 
-        // Transition to day phase
+        // Transition to day phase immediately to mount DayView
         state.phase = 'day';
-
         io.to(roomCode).emit('phase_change', { phase: 'day' });
-        io.to(roomCode).emit('night_results', { killed });
 
-        // System message for night kills
-        if (killed.length > 0) {
-          killed.forEach((k) => {
-            io.to(roomCode).emit('chat_message', {
-              id: Math.random().toString(36).substr(2, 9),
-              senderId: 'system',
-              senderName: 'System',
-              text: `${k.playerName} was eliminated during the night.`,
-              isGhost: false,
-              isSystem: true
-            });
-          });
-        } else {
-            io.to(roomCode).emit('chat_message', {
-              id: Math.random().toString(36).substr(2, 9),
-              senderId: 'system',
-              senderName: 'System',
-              text: `Nobody was eliminated last night.`,
-              isGhost: false,
-              isSystem: true
-            });
-        }
+        // Delay night results to allow DayView to mount and trigger elimination animations
+        setTimeout(() => {
+          io.to(roomCode).emit('night_results', { killed });
 
-        console.log(
-          `[Room ${roomCode}] Night resolved — killed: ${
-            killed.length > 0 ? killed.map((k) => k.playerName).join(', ') : 'nobody'
-          }`
-        );
+          // System message for night kills
+          if (killed.length > 0) {
+            killed.forEach((k) => {
+              io.to(roomCode).emit('chat_message', {
+                id: Math.random().toString(36).substr(2, 9),
+                senderId: 'system',
+                senderName: 'System',
+                text: `${k.playerName} was eliminated during the night.`,
+                isGhost: false,
+                isSystem: true
+              });
+            });
+          } else {
+              io.to(roomCode).emit('chat_message', {
+                id: Math.random().toString(36).substr(2, 9),
+                senderId: 'system',
+                senderName: 'System',
+                text: `Nobody was eliminated last night.`,
+                isGhost: false,
+                isSystem: true
+              });
+          }
+
+          console.log(
+            `[Room ${roomCode}] Night resolved — killed: ${
+              killed.length > 0 ? killed.map((k) => k.playerName).join(', ') : 'nobody'
+            }`
+          );
+        }, 500);
       }
     } catch (err) {
       if (callback) callback({ success: false, error: err.message });
@@ -369,6 +372,7 @@ function registerHandlers(io, socket) {
         state.votes = {};
         
         // We broadcast an update_lobby so clients see the dead player
+        // This triggers the elimination animation on the frontend
         io.to(roomCode).emit('update_lobby', { players: getPlayerList(state) });
 
         // Check win condition after elimination
@@ -376,10 +380,12 @@ function registerHandlers(io, socket) {
           return;
         }
 
-        state.phase = 'night';
-        state.pendingActions = computePendingActions(state);
-
-        io.to(roomCode).emit('phase_change', { phase: 'night' });
+        // Delay transitioning to night to allow the elimination animation to finish
+        setTimeout(() => {
+          state.phase = 'night';
+          state.pendingActions = computePendingActions(state);
+          io.to(roomCode).emit('phase_change', { phase: 'night' });
+        }, 2500);
       }
 
     } catch (err) {

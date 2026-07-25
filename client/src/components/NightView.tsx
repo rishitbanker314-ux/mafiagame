@@ -1,17 +1,8 @@
 import { useState } from 'react';
 import type { Socket } from 'socket.io-client';
 import { motion } from 'framer-motion';
-
-interface Player {
-  id: string;
-  name: string;
-  isAlive: boolean;
-}
-
-interface RoleInfo {
-  roleName: string;
-  team: string;
-}
+import type { Player, RoleInfo } from '../App';
+import PlayerCard from './PlayerCard';
 
 interface NightViewProps {
   socket: Socket;
@@ -57,9 +48,9 @@ export default function NightView({
   const description =
     ROLE_DESCRIPTIONS[myRole.roleName] || 'Awaiting orders...';
 
-  // Other alive players (exclude self)
+  // Other players (exclude self)
   const targets = players.filter(
-    (p) => p.id !== mySocketId && p.isAlive
+    (p) => p.id !== mySocketId
   );
 
   // Villager has no night action
@@ -143,20 +134,14 @@ export default function NightView({
               animate="show"
             >
               {targets.map((player) => (
-                <motion.button
+                <PlayerCard
                   key={player.id}
-                  variants={itemVariants}
-                  whileHover={{ scale: 1.02, backgroundColor: "rgba(239, 68, 68, 0.15)", borderColor: "rgba(239, 68, 68, 0.4)" }}
-                  whileTap={{ scale: 0.98 }}
-                  className="btn-target w-full text-left flex items-center gap-3 p-3 rounded-xl border border-white/5 bg-surface-700/50"
-                  onClick={() => handleTarget(player.id)}
+                  player={player}
+                  isMe={false}
+                  onAction={handleTarget}
                   disabled={submitted}
-                >
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center text-white text-sm font-bold shrink-0">
-                    {player.name.charAt(0).toUpperCase()}
-                  </div>
-                  <span>{player.name}</span>
-                </motion.button>
+                  itemVariants={itemVariants}
+                />
               ))}
             </motion.div>
           </>

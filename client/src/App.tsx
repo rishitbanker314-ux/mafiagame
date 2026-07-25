@@ -11,23 +11,26 @@ import VoteAnimator from './components/VoteAnimator';
 
 // ── Types ──────────────────────────────────────────────────────────────
 
-interface Player {
+export interface Player {
   id: string;
   name: string;
   isAlive: boolean;
+  role?: string;
+  socketId?: string; // Add socketId for animation tracking
 }
 
-interface RoleInfo {
+export interface RoleInfo {
   roleName: string;
   team: string;
 }
 
-interface KilledPlayer {
+export interface KilledPlayer {
   playerId: string;
   playerName: string;
+  roleName: string;
 }
 
-interface ChatMessage {
+export interface ChatMessage {
   id: string;
   senderId: string;
   senderName: string;
