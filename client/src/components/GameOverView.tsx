@@ -34,6 +34,8 @@ export default function GameOverView({ socket, winner, revealedRoles, isHost }: 
       ? ['#4ade80', '#22c55e', '#ffffff'] 
       : winner === 'mafia'
       ? ['#ef4444', '#b91c1c', '#000000']
+      : winner === 'jester'
+      ? ['#d946ef', '#c026d3', '#000000']
       : ['#facc15', '#eab308', '#ffffff'];
 
     (function frame() {
@@ -63,19 +65,33 @@ export default function GameOverView({ socket, winner, revealedRoles, isHost }: 
   }
 
   // Determine header text and styles based on winner
-  let headerText = 'Game Over';
-  let headerColor = 'text-white';
-  
-  if (winner === 'village') {
-    headerText = 'The Village Survived!';
-    headerColor = 'text-green-400 drop-shadow-[0_0_15px_rgba(74,222,128,0.5)]';
-  } else if (winner === 'mafia') {
-    headerText = 'The Mafia Took Over!';
-    headerColor = 'text-red-500 drop-shadow-[0_0_15px_rgba(239,68,68,0.5)]';
+  let themeColor = 'bg-slate-900';
+  let titleColor = 'text-white';
+  let titleText = 'Game Over';
+  let icon = '🏁';
+
+  if (winner === 'mafia') {
+    themeColor = 'bg-red-950/40';
+    titleColor = 'text-red-500';
+    titleText = 'Mafia Wins!';
+    icon = '🔪';
+  } else if (winner === 'village') {
+    themeColor = 'bg-emerald-950/40';
+    titleColor = 'text-emerald-500';
+    titleText = 'Village Wins!';
+    icon = '🛡️';
+  } else if (winner === 'jester') {
+    themeColor = 'bg-fuchsia-950/40';
+    titleColor = 'text-fuchsia-400';
+    titleText = 'The Jester Wins!';
+    icon = '🃏';
   } else if (winner) {
-    headerText = `${winner.charAt(0).toUpperCase() + winner.slice(1)} Wins!`;
-    headerColor = 'text-yellow-400 drop-shadow-[0_0_15px_rgba(250,204,21,0.5)]';
+    titleText = `${winner.charAt(0).toUpperCase() + winner.slice(1)} Wins!`;
+    titleColor = 'text-yellow-400';
   }
+
+  const headerText = titleText;
+  const headerColor = `${titleColor} drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]`;
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4">

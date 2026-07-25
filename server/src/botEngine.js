@@ -140,7 +140,7 @@ function simulateBotDayActions(io, roomCode, state) {
     
     setTimeout(() => {
       // Double check they are still alive and it's day phase
-      if (state.phase !== 'day' || !bot.isAlive) return;
+      if (state.phase !== 'day_voting' || !bot.isAlive) return;
 
       const validTargets = Object.values(state.players).filter(p => p.isAlive && p.id !== bot.id);
       if (validTargets.length === 0) return;

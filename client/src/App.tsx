@@ -49,12 +49,13 @@ export interface RevealedRole {
   isAlive: boolean;
 }
 
-type Phase = 'join' | 'lobby' | 'night' | 'day' | 'game_over';
+type Phase = 'join' | 'lobby' | 'night' | 'day_discussion' | 'day_voting' | 'game_over';
 
 export interface GameSettings {
   mafiaCount: number;
   hasDoctor: boolean;
   hasDetective: boolean;
+  hasJester: boolean;
 }
 
 // ── App ────────────────────────────────────────────────────────────────
@@ -69,7 +70,7 @@ export default function App() {
   const [votes, setVotes] = useState<Record<string, number>>({});
   const [winner, setWinner] = useState<string | null>(null);
   const [revealedRoles, setRevealedRoles] = useState<RevealedRole[]>([]);
-  const [settings, setSettings] = useState<GameSettings>({ mafiaCount: 1, hasDoctor: true, hasDetective: false });
+  const [settings, setSettings] = useState<GameSettings>({ mafiaCount: 1, hasDoctor: true, hasDetective: false, hasJester: false });
   const [connected, setConnected] = useState(socket.connected);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
 
@@ -148,16 +149,14 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    function onPhaseChange(data: { phase: string }) {
+    function onPhaseChange(data: { phase: Phase }) {
+      setPhase(data.phase);
       if (data.phase === 'night') {
-        setPhase('night');
         setKilled([]); // clear previous results
         setVotes({}); // clear previous votes
-      } else if (data.phase === 'day') {
-        setPhase('day');
+      } else if (data.phase === 'day_discussion' || data.phase === 'day_voting') {
         setVotes({}); // ensure clean state
       } else if (data.phase === 'lobby') {
-        setPhase('lobby');
         // Clear game state tracking variables on restart
         setMyRole(null);
         setKilled([]);
@@ -166,7 +165,6 @@ export default function App() {
         setWinner(null);
         setRevealedRoles([]);
       } else if (data.phase === 'game_over') {
-        setPhase('game_over');
         setTimeLeft(null);
       }
     }
@@ -287,7 +285,7 @@ export default function App() {
       <div className="relative min-h-screen text-white overflow-hidden selection:bg-purple-500/30">
         <Background phase={phase} winner={winner} />
         
-        {timeLeft !== null && (phase === 'day' || phase === 'night') && (
+        {timeLeft !== null && (phase === 'day_discussion' || phase === 'day_voting' || phase === 'night') && (
           <ProgressBar timeLeft={timeLeft} maxTime={60} />
         )}
 
@@ -337,7 +335,7 @@ export default function App() {
                 />
               )}
 
-              {phase === 'day' && (
+              {(phase === 'day_discussion' || phase === 'day_voting') && (
                 <DayView 
                   socket={socket}
                   players={players} 
@@ -345,6 +343,7 @@ export default function App() {
                   chatMessages={chatMessages}
                   votes={votes}
                   mySessionId={localStorage.getItem('sessionToken') ?? ''}
+                  phase={phase}
                 />
               )}
 

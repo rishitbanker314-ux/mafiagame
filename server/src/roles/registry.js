@@ -59,6 +59,7 @@ function initializeRoles() {
   const Vigilante = require('./Vigilante');
   const Detective = require('./Detective');
   const Mafia = require('./Mafia');
+  const Jester = require('./Jester');
 
   // Guard against double-initialization
   if (registry.size > 0) return;
@@ -68,6 +69,7 @@ function initializeRoles() {
   registerRole('Vigilante', Vigilante);
   registerRole('Detective', Detective);
   registerRole('Mafia', Mafia);
+  registerRole('Jester', Jester);
 }
 
 module.exports = {

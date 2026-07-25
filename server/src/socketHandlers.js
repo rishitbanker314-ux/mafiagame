@@ -23,6 +23,7 @@ function buildRoleList(playerCount, settings) {
   }
   if (settings.hasDoctor && roles.length < playerCount) roles.push('Doctor');
   if (settings.hasDetective && roles.length < playerCount) roles.push('Detective');
+  if (settings.hasJester && roles.length < playerCount) roles.push('Jester');
   while (roles.length < playerCount) {
     roles.push('Villager');
   }
@@ -63,11 +64,27 @@ function resolveNightAndTransition(io, roomCode, state) {
     return;
   }
 
-  state.phase = 'day';
-  io.to(roomCode).emit('phase_change', { phase: 'day' });
+  state.phase = 'day_discussion';
+  io.to(roomCode).emit('phase_change', { phase: 'day_discussion' });
 
-  startPhaseTimer(io, roomCode, state, 60, () => {
-    forceDayResolution(io, roomCode, state);
+  startPhaseTimer(io, roomCode, state, 90, () => {
+    // 90s discussion ends, start voting
+    state.phase = 'day_voting';
+    io.to(roomCode).emit('phase_change', { phase: 'day_voting' });
+    io.to(roomCode).emit('chat_message', {
+      id: Math.random().toString(36).substr(2, 9),
+      senderId: 'system',
+      senderName: 'System',
+      text: `Discussion time is over! The voting phase has begun. You have 30 seconds to cast your vote.`,
+      isGhost: false,
+      isSystem: true
+    });
+    
+    simulateBotDayActions(io, roomCode, state);
+
+    startPhaseTimer(io, roomCode, state, 30, () => {
+      forceDayResolution(io, roomCode, state);
+    });
   });
 
   setTimeout(() => {
@@ -93,7 +110,6 @@ function resolveNightAndTransition(io, roomCode, state) {
         isSystem: true
       });
     }
-    simulateBotDayActions(io, roomCode, state);
   }, 500);
 }
 
@@ -330,7 +346,14 @@ function registerHandlers(io, socket) {
       const sessionId = socket.data.sessionId;
       const state = getRoom(roomCode);
       if (!state) throw new Error('Room not found.');
-      if (state.phase !== 'day') throw new Error('Not the day phase.');
+      if (state.phase !== 'day_discussion' && state.phase !== 'day_voting') throw new Error('Not the day phase.');
+
+      const now = Date.now();
+      state.chatLastSent = state.chatLastSent || {};
+      if (state.chatLastSent[sessionId] && now - state.chatLastSent[sessionId] < 500) {
+        throw new Error('You are sending messages too fast.');
+      }
+      state.chatLastSent[sessionId] = now;
 
       const sender = state.players[sessionId];
       if (!sender) throw new Error('Player not found.');
@@ -366,7 +389,7 @@ function registerHandlers(io, socket) {
       const sessionId = socket.data.sessionId;
       const state = getRoom(roomCode);
       if (!state) throw new Error('Room not found.');
-      if (state.phase !== 'day') throw new Error('Not the day phase.');
+      if (state.phase !== 'day_voting') throw new Error('Voting is only allowed during the voting phase.');
 
       const voter = state.players[sessionId];
       const target = state.players[targetId];
