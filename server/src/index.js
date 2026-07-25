@@ -2,6 +2,7 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
+const path = require('path');
 const { initializeRoles } = require('./roles/registry');
 const { registerHandlers } = require('./socketHandlers');
 
@@ -15,9 +16,16 @@ app.use(cors());
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:5173',
+    origin: process.env.NODE_ENV === 'production' ? false : 'http://localhost:5173',
     methods: ['GET', 'POST'],
   },
+});
+
+// ── Serve static React app in production ────────────────────────────────
+app.use(express.static(path.join(__dirname, '../../client/dist')));
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../client/dist/index.html'));
 });
 
 // ── Socket connection handler ───────────────────────────────────────────

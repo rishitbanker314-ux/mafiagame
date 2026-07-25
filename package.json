@@ -4,6 +4,7 @@
   "description": "Multiplayer Mafia game — React + Tailwind frontend, Node.js + Socket.io backend",
   "private": true,
   "scripts": {
+    "start": "node server/src/index.js",
     "dev:server": "cd server && npm run dev",
     "dev:client": "cd client && npm run dev",
     "test": "cd server && npm test",
