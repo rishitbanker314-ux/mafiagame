@@ -30,7 +30,7 @@ function buildRoleList(playerCount, settings) {
   return shuffle(roles);
 }
 
-const { resolveNightAndTransition, forceDayResolution } = require('./engine/gameLoop');
+const { resolveNightAndTransition, transitionToVoting, forceDayResolution } = require('./engine/gameLoop');
 
 
 function registerHandlers(io, socket) {
@@ -294,7 +294,7 @@ function registerHandlers(io, socket) {
       const sessionId = socket.data.sessionId;
       const state = getRoom(roomCode);
       if (!state) throw new Error('Room not found.');
-      if (state.phase !== 'day_voting') throw new Error('Voting is only allowed during the voting phase.');
+      if (state.phase !== 'day_discussion' && state.phase !== 'day_voting') throw new Error('Voting is only allowed during the day phase.');
 
       const voter = state.players[sessionId];
       const target = state.players[targetId];
@@ -369,6 +369,49 @@ function registerHandlers(io, socket) {
         }, 2500);
       }
 
+    } catch (err) {
+      if (callback) callback({ success: false, error: err.message });
+    }
+  });
+
+  // ── 5. Skip Discussion ──────────────────────────────────────────────
+
+  socket.on('skip_discussion', (_, callback) => {
+    try {
+      const roomCode = socket.data.roomCode;
+      const sessionId = socket.data.sessionId;
+      const state = getRoom(roomCode);
+      if (!state) throw new Error('Room not found.');
+      if (state.phase !== 'day_discussion') throw new Error('Can only skip during discussion phase.');
+
+      const player = state.players[sessionId];
+      if (!player) throw new Error('Player not found.');
+      if (!player.isAlive) throw new Error('Dead players cannot skip.');
+
+      if (!state.skipVotes) state.skipVotes = new Set();
+      state.skipVotes.add(sessionId);
+
+      const aliveHumanIds = Object.keys(state.players).filter(pid => state.players[pid].isAlive && !state.players[pid].isBot);
+      const skipCount = aliveHumanIds.filter(pid => state.skipVotes.has(pid)).length;
+      const totalAliveHumans = aliveHumanIds.length;
+
+      io.to(roomCode).emit('skip_update', { skipCount, totalNeeded: totalAliveHumans, skippedBy: sessionId });
+
+      console.log(`[Room ${roomCode}] ${player.name} wants to skip discussion (${skipCount}/${totalAliveHumans})`);
+
+      if (skipCount >= totalAliveHumans) {
+        io.to(roomCode).emit('chat_message', {
+          id: Math.random().toString(36).substr(2, 9),
+          senderId: 'system',
+          senderName: 'System',
+          text: `All agents agreed to skip discussion. Moving to vote.`,
+          isGhost: false,
+          isSystem: true
+        });
+        transitionToVoting(io, roomCode, state);
+      }
+
+      if (callback) callback({ success: true });
     } catch (err) {
       if (callback) callback({ success: false, error: err.message });
     }

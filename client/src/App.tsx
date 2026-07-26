@@ -53,11 +53,17 @@ export interface RevealedRole {
 
 type Phase = 'join' | 'lobby' | 'night' | 'day_discussion' | 'day_voting' | 'game_over';
 
+export interface SkipInfo {
+  skipCount: number;
+  totalNeeded: number;
+}
+
 export interface GameSettings {
   mafiaCount: number;
   hasDoctor: boolean;
   hasDetective: boolean;
   hasJester: boolean;
+  discussionTime: number;
 }
 
 // ── App ────────────────────────────────────────────────────────────────
@@ -74,9 +80,10 @@ export default function App() {
   const [votes, setVotes] = useState<Record<string, number>>({});
   const [winner, setWinner] = useState<string | null>(null);
   const [revealedRoles, setRevealedRoles] = useState<RevealedRole[]>([]);
-  const [settings, setSettings] = useState<GameSettings>({ mafiaCount: 1, hasDoctor: true, hasDetective: false, hasJester: false });
+  const [settings, setSettings] = useState<GameSettings>({ mafiaCount: 1, hasDoctor: true, hasDetective: false, hasJester: false, discussionTime: 60 });
   const [connected, setConnected] = useState(socket.connected);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
+  const [skipInfo, setSkipInfo] = useState<{skipCount: number; totalNeeded: number} | null>(null);
 
   // ── Session Initialization ─────────────────────────────────────────────
   
@@ -181,6 +188,8 @@ export default function App() {
       } else if (data.phase === 'game_over') {
         setTimeLeft(null);
       }
+      // Clear skip info on any phase change
+      setSkipInfo(null);
     }
 
     socket.on('phase_change', onPhaseChange);
@@ -284,6 +293,18 @@ export default function App() {
     };
   }, []);
 
+  useEffect(() => {
+    function onSkipUpdate(data: { skipCount: number; totalNeeded: number }) {
+      setSkipInfo({ skipCount: data.skipCount, totalNeeded: data.totalNeeded });
+    }
+
+    socket.on('skip_update', onSkipUpdate);
+
+    return () => {
+      socket.off('skip_update', onSkipUpdate);
+    };
+  }, []);
+
   // ── Callbacks ───────────────────────────────────────────────────────
 
   const handleJoined = useCallback((code: string, _name: string) => {
@@ -369,6 +390,8 @@ export default function App() {
                   mySessionId={localStorage.getItem('sessionToken') ?? ''}
                   phase={phase}
                   myTeammates={myTeammates}
+                  timeLeft={timeLeft}
+                  skipInfo={skipInfo}
                 />
               )}
 

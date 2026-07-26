@@ -11,7 +11,20 @@ function resolveNightAndTransition(io, roomCode, state) {
     wasAlive[pid] = state.players[pid].isAlive;
   }
 
-  resolveNightPhase(state);
+  const results = resolveNightPhase(state);
+
+  // Forward investigation results to the detective
+  results.forEach((res) => {
+    if (res.type === 'investigate') {
+      const sourcePlayer = state.players[res.sourceId];
+      if (sourcePlayer && sourcePlayer.socketId) {
+        io.to(sourcePlayer.socketId).emit('investigation_result', {
+          targetId: res.targetId,
+          team: res.result.team,
+        });
+      }
+    }
+  });
 
   const killed = Object.keys(state.players)
     .filter((pid) => wasAlive[pid] && !state.players[pid].isAlive)
@@ -26,18 +39,16 @@ function resolveNightAndTransition(io, roomCode, state) {
     return;
   }
 
+  // Enter day_discussion with configurable timer
   state.phase = 'day_discussion';
+  state.skipVotes = new Set();
+  state.votes = {};
+  const discussionTime = (state.settings && state.settings.discussionTime) || 60;
+
   io.to(roomCode).emit('phase_change', { phase: 'day_discussion' });
   
-  startPhaseTimer(io, roomCode, state, 90, () => {
-    state.phase = 'day_voting';
-    io.to(roomCode).emit('phase_change', { phase: 'day_voting' });
-    
-    botEngine.simulateBotDayActions(io, roomCode, state);
-
-    startPhaseTimer(io, roomCode, state, 30, () => {
-      forceDayResolution(io, roomCode, state);
-    });
+  startPhaseTimer(io, roomCode, state, discussionTime, () => {
+    transitionToVoting(io, roomCode, state);
   });
 
   setTimeout(() => {
@@ -64,6 +75,31 @@ function resolveNightAndTransition(io, roomCode, state) {
       });
     }
   }, 500);
+}
+
+/**
+ * Transition from day_discussion to day_voting.
+ */
+function transitionToVoting(io, roomCode, state) {
+  clearPhaseTimer(state);
+  state.phase = 'day_voting';
+  state.skipVotes = new Set();
+
+  io.to(roomCode).emit('phase_change', { phase: 'day_voting' });
+  io.to(roomCode).emit('chat_message', {
+    id: Math.random().toString(36).substr(2, 9),
+    senderId: 'system',
+    senderName: 'System',
+    text: `Discussion time is over! The voting phase has begun. You have 30 seconds to cast your vote.`,
+    isGhost: false,
+    isSystem: true
+  });
+
+  botEngine.simulateBotDayActions(io, roomCode, state);
+
+  startPhaseTimer(io, roomCode, state, 30, () => {
+    forceDayResolution(io, roomCode, state);
+  });
 }
 
 function forceDayResolution(io, roomCode, state) {
@@ -94,5 +130,6 @@ function forceDayResolution(io, roomCode, state) {
 
 module.exports = {
   resolveNightAndTransition,
+  transitionToVoting,
   forceDayResolution
 };

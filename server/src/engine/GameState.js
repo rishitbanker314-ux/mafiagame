@@ -24,6 +24,8 @@ function createGameState(roomId) {
       mafiaCount: 1,
       hasDoctor: true,
       hasDetective: false,
+      hasJester: false,
+      discussionTime: 60,
     },
     timerInfo: null,
   };

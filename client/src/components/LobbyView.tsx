@@ -256,6 +256,33 @@ export default function LobbyView({
               </div>
 
               <div className="dashed-divider"></div>
+
+              {/* Discussion Time */}
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <label className="font-label-lg uppercase tracking-widest text-outline text-xs">DISCUSSION_TIME</label>
+                  <span className="font-mono text-xs text-primary">{settings.discussionTime}s</span>
+                </div>
+                <div className="flex items-center gap-4">
+                  {isHost && (
+                    <button onClick={() => updateSetting('discussionTime', Math.max(15, (settings.discussionTime || 60) - 15))} className="px-3 py-1 bg-surface-container border-2 border-outline-variant text-primary hover:bg-surface-variant font-bold">-</button>
+                  )}
+                  <div className="relative h-6 flex items-center flex-1">
+                    <div className="absolute w-full h-[2px] bg-outline-variant"></div>
+                    <div className="absolute h-[2px] bg-primary" style={{ width: `${((settings.discussionTime || 60) / 180) * 100}%` }}></div>
+                    <div className="absolute w-4 h-6 bg-secondary-fixed shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] border border-on-secondary-fixed-variant" style={{ left: `calc(${((settings.discussionTime || 60) / 180) * 100}% - 8px)` }}></div>
+                  </div>
+                  {isHost && (
+                    <button onClick={() => updateSetting('discussionTime', Math.min(180, (settings.discussionTime || 60) + 15))} className="px-3 py-1 bg-surface-container border-2 border-outline-variant text-primary hover:bg-surface-variant font-bold">+</button>
+                  )}
+                </div>
+                <div className="flex justify-between text-[9px] text-outline uppercase">
+                  <span>15s</span>
+                  <span>180s</span>
+                </div>
+              </div>
+
+              <div className="dashed-divider"></div>
               
               <div className="bg-surface-container-high p-4 border border-outline-variant">
                 <div className="flex gap-2 text-primary mb-2">

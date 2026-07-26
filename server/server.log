@@ -10,3 +10,60 @@
 Mafia server running on http://localhost:3001
 Player connected: RLPSQaYtu_-b_MlzAAAB
 Player connected: JlVPwDamZWdEvF6NAAAD
+Player connected: 0OpKedhTugAL8SHKAAAF
+[Room OBFG] Created by 3dl0t1jkq7t (rishi)
+[Room OBFG] Bot Bot Alice added by host
+[Room OBFG] Bot Bot Bob added by host
+[Room OBFG] Bot Bot Charlie added by host
+[Room OBFG] Bot Bot Dave added by host
+[Room OBFG] Bot Bot Eve added by host
+[Room OBFG] Game started — 6 players, night phase
+[Room OBFG] Bot Bot Dave submitted night action.
+[Room OBFG] Bot Bot Alice submitted night action.
+[Room OBFG] Bot Bot Dave voted for rishi
+[Room OBFG] Bot Bot Alice voted for rishi
+[Room OBFG] Bot Bot Eve voted for Bot Dave
+[Room OBFG] Bot Bot Bob voted for rishi
+[Room OBFG] rishi was voted out.
+[Room OBFG] Bot Bot Dave submitted night action.
+[Room OBFG] Bot Bot Alice submitted night action.
+[Room OBFG] Player rishi disconnected
+Player connected: fLp_JnHfV9Lmt5UvAAAH
+[Room WBMF] Created by 3dl0t1jkq7t (rishi)
+[Room WBMF] Bot Bot Alice added by host
+[Room WBMF] Bot Bot Bob added by host
+[Room WBMF] Bot Bot Charlie added by host
+[Room WBMF] Bot Bot Dave added by host
+[Room WBMF] Bot Bot Eve added by host
+[Room OBFG] Bot Bot Bob voted for Bot Dave
+[Room OBFG] Bot Bot Alice voted for Bot Eve
+[Room OBFG] Bot Bot Dave voted for Bot Alice
+[Room WBMF] Game started — 6 players, night phase
+[Room WBMF] Bot Bot Eve submitted night action.
+[Room WBMF] Bot Bot Dave submitted night action.
+[Room OBFG] Bot Bot Eve voted for Bot Dave
+[Room WBMF] Bot Bot Alice submitted night action.
+[Room OBFG] Bot Bot Alice submitted night action.
+[Room OBFG] Bot Bot Dave submitted night action.
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/index.js`[39m
+Mafia server running on http://localhost:3001
+Player connected: b1uxJzZN3N4hYPJjAAAB
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/index.js`[39m
+Mafia server running on http://localhost:3001
+Player connected: U0aJjirbEmO_HjoGAAAB
+Player connected: OHWZXWU6iNo-jVg1AAAD
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/index.js`[39m
+Mafia server running on http://localhost:3001
+Player connected: APSdRzUY_mbbQCHqAAAB
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/index.js`[39m
+Mafia server running on http://localhost:3001
+Player connected: wbGS-lCkBLYyzx4MAAAB
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/index.js`[39m
+Mafia server running on http://localhost:3001
+Player connected: pTR66R2iWMaXIJqVAAAB
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m

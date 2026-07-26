@@ -80,6 +80,7 @@ function getPlayerList(state) {
     name: p.name,
     isAlive: p.isAlive,
     connected: p.connected,
+    isBot: p.isBot || false,
   }));
 }
 
