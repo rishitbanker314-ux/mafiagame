@@ -17,6 +17,7 @@ class Doctor extends Role {
    * Push a protect action onto the game's action queue.
    * The action's execute() closure sets isProtected on the target,
    * keeping all protect logic inside this role — not in the engine.
+   */
   nightAction(sourceId, targetId, state) {
     state.actionQueue.push({
       type: 'protect',
