@@ -44,7 +44,12 @@ export default function NightView({
   const description = ROLE_DESCRIPTIONS[myRole.roleName] || 'Awaiting orders...';
 
   // Other players (exclude self)
-  const targets = players.filter((p) => p.id !== mySessionId);
+  let targets = players.filter((p) => p.id !== mySessionId);
+  if (myRole.roleName === 'Mafia') {
+    const teammates = myRole.mafiaTeammates || [];
+    targets = targets.filter(p => !teammates.includes(p.name));
+  }
+
   const hasNightAction = myRole.roleName !== 'Villager' && myRole.roleName !== 'Jester';
 
   function handleTarget(targetId: string) {

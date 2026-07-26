@@ -276,10 +276,10 @@ export default function DayView({
         </section>
 
         {/* ── Main Content: Chat + Voting Cards ── */}
-        <div className="flex flex-col lg:grid lg:grid-cols-12 gap-gutter flex-1 min-h-0 lg:overflow-hidden h-full overflow-visible">
+        <div className="flex flex-col lg:grid lg:grid-cols-12 gap-gutter lg:flex-1 lg:min-h-0 lg:overflow-hidden lg:h-full">
 
           {/* Left: Chat / Bulletin Board */}
-          <div className="lg:col-span-7 flex flex-col min-h-0 flex-1">
+          <div className="lg:col-span-7 flex flex-col lg:min-h-0 lg:flex-1 min-h-[500px]">
             <section className="bg-surface-container-low p-4 md:p-5 border-2 border-outline-variant relative flex flex-col flex-1 min-h-0">
               <h2 className="font-headline-md text-headline-md uppercase mb-3 border-b border-dashed border-outline pb-2 flex items-center gap-2 shrink-0 text-sm">
                 <span className="material-symbols-outlined text-sm">push_pin</span> 
@@ -317,8 +317,8 @@ export default function DayView({
                   
                   if (msg.isSystem) {
                     return (
-                      <div key={msg.id || i} className="text-center my-2">
-                        <span className="inline-block px-3 py-1 bg-surface-container-highest text-outline text-[10px] tracking-wide border border-outline-variant">
+                      <div key={msg.id || i} className="text-center my-2 w-full flex justify-center">
+                        <span className="inline-block max-w-[95%] px-3 py-1 bg-surface-container-highest text-outline text-[10px] tracking-wide border border-outline-variant break-words whitespace-normal text-center">
                           {msg.text}
                         </span>
                       </div>
