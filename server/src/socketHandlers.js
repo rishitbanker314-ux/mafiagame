@@ -374,6 +374,76 @@ function registerHandlers(io, socket) {
     }
   });
 
+  // ── 4b. Skip Vote (No Elimination) ─────────────────────────────────
+
+  socket.on('skip_vote', (_, callback) => {
+    try {
+      const roomCode = socket.data.roomCode;
+      const sessionId = socket.data.sessionId;
+      const state = getRoom(roomCode);
+      if (!state) throw new Error('Room not found.');
+      if (state.phase !== 'day_discussion' && state.phase !== 'day_voting') throw new Error('Can only skip vote during day phase.');
+
+      const voter = state.players[sessionId];
+      if (!voter) throw new Error('Player not found.');
+      if (!voter.isAlive) throw new Error('Dead players cannot skip vote.');
+
+      // Use special target '__SKIP__' to represent no-elimination vote
+      state.votes[sessionId] = '__SKIP__';
+
+      const voteCounts = {};
+      for (const vId of Object.keys(state.votes)) {
+        const tId = state.votes[vId];
+        voteCounts[tId] = (voteCounts[tId] || 0) + 1;
+      }
+
+      io.to(roomCode).emit('vote_update', { 
+        voterId: sessionId,
+        targetId: '__SKIP__',
+        votes: voteCounts 
+      });
+
+      console.log(`[Room ${roomCode}] ${voter.name} voted to skip elimination`);
+
+      if (callback) callback({ success: true });
+
+      // Check if majority voted to skip
+      const alivePlayersCount = Object.values(state.players).filter((p) => p.isAlive).length;
+      const majorityThreshold = Math.floor(alivePlayersCount / 2);
+      const skipCount = voteCounts['__SKIP__'] || 0;
+
+      if (skipCount > majorityThreshold) {
+        clearPhaseTimer(state);
+
+        io.to(roomCode).emit('chat_message', {
+          id: Math.random().toString(36).substr(2, 9),
+          senderId: 'system',
+          senderName: 'System',
+          text: `The town voted to skip elimination. No one was voted out.`,
+          isGhost: false,
+          isSystem: true
+        });
+
+        state.votes = {};
+
+        setTimeout(() => {
+          state.phase = 'night';
+          state.pendingActions = computePendingActions(state);
+          io.to(roomCode).emit('phase_change', { phase: 'night' });
+          
+          startPhaseTimer(io, roomCode, state, 60, () => {
+            resolveNightAndTransition(io, roomCode, state);
+          });
+          
+          simulateBotNightActions(io, roomCode, state);
+        }, 2500);
+      }
+
+    } catch (err) {
+      if (callback) callback({ success: false, error: err.message });
+    }
+  });
+
   // ── 5. Skip Discussion ──────────────────────────────────────────────
 
   socket.on('skip_discussion', (_, callback) => {
