@@ -398,6 +398,7 @@ export default function App() {
                   players={players}
                   mySessionId={localStorage.getItem('sessionToken') ?? ''}
                   myTeammates={myTeammates}
+                  timeLeft={timeLeft}
                   onLeaveGame={handleLeaveGame}
                 />
               )}

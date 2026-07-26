@@ -9,6 +9,7 @@ interface NightViewProps {
   players: Player[];
   mySessionId: string;
   myTeammates?: string[];
+  timeLeft?: number | null;
   onLeaveGame?: () => void;
 }
 
@@ -36,6 +37,7 @@ export default function NightView({
   players,
   mySessionId,
   myTeammates,
+  timeLeft,
   onLeaveGame,
 }: NightViewProps) {
   const [submitted, setSubmitted] = useState(false);
@@ -68,7 +70,7 @@ export default function NightView({
   const myAgentId = me ? me.name.substring(0, 3).toUpperCase() : '042';
 
   return (
-    <Layout agentId={myAgentId} onLeaveGame={onLeaveGame}>
+    <Layout agentId={myAgentId} showNav={true} onLeaveGame={onLeaveGame}>
       <div className="flex flex-col lg:grid lg:grid-cols-12 gap-gutter flex-1 min-h-0 lg:overflow-hidden h-full overflow-visible">
         {/* Secure Transmission Overlay */}
         {submitted && (
@@ -87,7 +89,17 @@ export default function NightView({
               </h2>
               <p className="font-label-sm text-outline uppercase">{description}</p>
             </div>
-            <p className="font-label-sm text-label-sm uppercase text-outline">TARGETS: {targets.length}</p>
+            <div className="flex flex-col items-end gap-1">
+              <p className="font-label-sm text-label-sm uppercase text-outline">TARGETS: {targets.length}</p>
+              {timeLeft !== null && timeLeft !== undefined && (
+                <div className={`flex items-center gap-1 border px-2 py-0.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${timeLeft <= 10 ? 'border-error text-error bg-error/10 animate-pulse' : 'border-outline-variant text-primary bg-surface-container'}`}>
+                  <span className="material-symbols-outlined text-sm">timer</span>
+                  <span className="font-mono text-xs font-bold tracking-wider">
+                    {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="flex-1 overflow-visible lg:overflow-y-auto custom-scrollbar pr-2 pb-4">
