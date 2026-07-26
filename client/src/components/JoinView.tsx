@@ -111,7 +111,7 @@ export default function JoinView({ socket, onJoined }: JoinViewProps) {
   }
 
   return (
-    <div className="min-h-[100dvh] flex flex-col relative overflow-hidden bg-background">
+    <div className="min-h-[100dvh] flex flex-col relative overflow-y-auto custom-scrollbar bg-background">
       {/* Noise overlay and vignette for the vintage look */}
       <div className="noise-overlay" />
       <div className="absolute inset-0 vignette pointer-events-none" />

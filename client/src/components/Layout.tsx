@@ -48,7 +48,7 @@ export default function Layout({ children, agentId = '042', showNav = true, onLe
       </div>
       
       {/* Main Content Area */}
-      <main className={`${showNav ? 'pt-16' : ''} w-full flex-1 flex flex-col min-h-0 relative overflow-hidden bg-transparent z-10`}>
+      <main className={`${showNav ? 'pt-16' : ''} w-full flex-1 flex flex-col min-h-0 relative overflow-y-auto md:overflow-hidden bg-transparent z-10 custom-scrollbar`}>
         <div className="relative w-full flex-1 flex flex-col p-4 md:p-8 min-h-0">
           {children}
         </div>

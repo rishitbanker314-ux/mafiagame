@@ -276,7 +276,7 @@ export default function DayView({
         </section>
 
         {/* ── Main Content: Chat + Voting Cards ── */}
-        <div className="flex flex-col lg:grid lg:grid-cols-12 gap-gutter flex-1 min-h-0 lg:overflow-hidden h-full">
+        <div className="flex flex-col lg:grid lg:grid-cols-12 gap-gutter flex-1 min-h-0 lg:overflow-hidden h-full overflow-y-auto custom-scrollbar">
 
           {/* Left: Chat / Bulletin Board */}
           <div className="lg:col-span-7 flex flex-col min-h-0 flex-1">

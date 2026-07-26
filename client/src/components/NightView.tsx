@@ -64,7 +64,7 @@ export default function NightView({
 
   return (
     <Layout agentId={myAgentId} onLeaveGame={onLeaveGame}>
-      <div className="flex flex-col lg:grid lg:grid-cols-12 gap-gutter flex-1 min-h-0 lg:overflow-hidden h-full">
+      <div className="flex flex-col lg:grid lg:grid-cols-12 gap-gutter flex-1 min-h-0 lg:overflow-hidden h-full overflow-y-auto lg:overflow-visible custom-scrollbar">
         {/* Secure Transmission Overlay */}
         {submitted && (
           <div className="fixed bottom-8 right-8 z-[110] flex items-center gap-3 bg-surface-container p-4 border border-outline-variant shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">

@@ -75,7 +75,7 @@ export default function LobbyView({
 
   return (
     <Layout agentId={myAgentId} onLeaveGame={onLeaveGame}>
-      <div className="flex flex-col md:grid md:grid-cols-12 gap-gutter min-h-0 flex-1 md:h-full pb-8 md:pb-0">
+      <div className="flex flex-col md:grid md:grid-cols-12 gap-gutter min-h-0 flex-1 md:h-full pb-8 md:pb-0 overflow-y-auto md:overflow-visible custom-scrollbar">
         {/* Left: Operatives List */}
         <div className="col-span-12 md:col-span-3 flex flex-col gap-6">
           <div className="flex items-center justify-between border-b-2 border-outline-variant pb-2">
