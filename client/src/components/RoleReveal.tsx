@@ -73,7 +73,7 @@ export default function RoleReveal({ roleName, onAcknowledge }: RoleRevealProps)
             className={`dossier-card torn-edge p-12 w-full text-center space-y-8 bg-surface-container border border-outline-variant shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] ${accepted ? 'animate-pulse' : ''}`}
           >
             <div className="inline-block border-4 border-error p-4 rotate-[-2deg] mb-8 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-              <h1 className="font-display-lg text-3xl sm:text-5xl md:text-[64px] text-error uppercase leading-none font-extrabold tracking-tighter">
+              <h1 className="font-display-lg text-2xl sm:text-4xl md:text-[64px] text-error uppercase leading-none font-extrabold tracking-tighter break-words text-center">
                 YOUR ASSIGNMENT: {roleName}
               </h1>
             </div>
@@ -116,7 +116,7 @@ export default function RoleReveal({ roleName, onAcknowledge }: RoleRevealProps)
             </AnimatePresence>
           </motion.div>
 
-          <div className="mt-8 flex gap-12 text-outline font-label-sm uppercase tracking-widest relative z-20">
+          <div className="mt-8 flex flex-col sm:flex-row gap-4 sm:gap-12 text-outline font-label-sm uppercase tracking-widest relative z-20 items-center text-center">
             <div className="flex items-center gap-2">
               <span className="material-symbols-outlined text-sm">schedule</span>
               <span>02:14 AM</span>
@@ -153,7 +153,7 @@ export default function RoleReveal({ roleName, onAcknowledge }: RoleRevealProps)
             </div>
 
             <div className="relative z-10 text-center px-4 w-full overflow-hidden">
-              <h2 className="font-display-lg text-4xl sm:text-5xl md:text-6xl uppercase tracking-widest sm:tracking-[0.2em] md:tracking-[0.3em] break-words" style={{
+              <h2 className="font-display-lg text-xl sm:text-4xl md:text-6xl uppercase tracking-tighter sm:tracking-widest md:tracking-[0.3em]" style={{
                 color: '#dc2626',
                 textShadow: '0 0 20px rgba(220,38,38,0.4)',
                 animation: 'typeReveal 0.8s steps(20, end) forwards',
