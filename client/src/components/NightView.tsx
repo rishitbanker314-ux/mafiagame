@@ -9,6 +9,7 @@ interface NightViewProps {
   players: Player[];
   mySessionId: string;
   myTeammates?: string[];
+  onLeaveGame?: () => void;
 }
 
 const ROLE_EMOJIS: Record<string, string> = {
@@ -35,6 +36,7 @@ export default function NightView({
   players,
   mySessionId,
   myTeammates,
+  onLeaveGame,
 }: NightViewProps) {
   const [submitted, setSubmitted] = useState(false);
 
@@ -61,7 +63,7 @@ export default function NightView({
   const myAgentId = me ? me.name.substring(0, 3).toUpperCase() : '042';
 
   return (
-    <Layout agentId={myAgentId} showNav={true}>
+    <Layout agentId={myAgentId} onLeaveGame={onLeaveGame}>
       <div className="flex flex-col lg:grid lg:grid-cols-12 gap-gutter flex-1 min-h-0 lg:overflow-hidden h-full">
         {/* Secure Transmission Overlay */}
         {submitted && (

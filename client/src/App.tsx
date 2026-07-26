@@ -313,11 +313,28 @@ export default function App() {
     setPhase('lobby');
   }, []);
 
+  const handleLeaveGame = useCallback(() => {
+    socket.emit('leave_game');
+    localStorage.removeItem('roomCode');
+    setRoomCode('');
+    setPhase('join');
+    // Clear all game states
+    setMyRole(null);
+    setMyTeammates([]);
+    setKilled([]);
+    setChatMessages([]);
+    setVotes({});
+    setWinner(null);
+    setRevealedRoles([]);
+    setTimeLeft(null);
+    setSkipInfo(null);
+  }, []);
+
   // ── Render ──────────────────────────────────────────────────────────
 
   return (
     <VoteAnimator>
-      <div className="relative min-h-screen text-white overflow-hidden selection:bg-purple-500/30">
+      <div className="relative h-[100dvh] w-full flex flex-col text-white overflow-hidden selection:bg-purple-500/30">
         <Background phase={phase} winner={winner} />
         
         {timeLeft !== null && (phase === 'day_discussion' || phase === 'day_voting' || phase === 'night') && (
@@ -345,7 +362,7 @@ export default function App() {
           </div>
         )}
 
-        <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
+        <div className="relative z-10 flex-1 w-full flex flex-col overflow-hidden">
           <AnimatePresence mode="wait">
             <motion.div
               key={phase}
@@ -353,7 +370,7 @@ export default function App() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3 }}
-              className="w-full"
+              className="w-full flex-1 flex flex-col min-h-0"
             >
               {/* Phase-based views */}
               {phase === 'join' && (
@@ -367,6 +384,7 @@ export default function App() {
                   players={players}
                   settings={settings}
                   mySessionId={localStorage.getItem('sessionToken') ?? ''}
+                  onLeaveGame={handleLeaveGame}
                 />
               )}
 
@@ -377,6 +395,7 @@ export default function App() {
                   players={players}
                   mySessionId={localStorage.getItem('sessionToken') ?? ''}
                   myTeammates={myTeammates}
+                  onLeaveGame={handleLeaveGame}
                 />
               )}
 
@@ -392,6 +411,7 @@ export default function App() {
                   myTeammates={myTeammates}
                   timeLeft={timeLeft}
                   skipInfo={skipInfo}
+                  onLeaveGame={handleLeaveGame}
                 />
               )}
 
@@ -403,6 +423,7 @@ export default function App() {
                   isHost={players.length > 0 ? (players[0].id === localStorage.getItem('sessionToken')) : false}
                   players={players}
                   mySessionId={localStorage.getItem('sessionToken') || ''}
+                  onLeaveGame={handleLeaveGame}
                 />
               )}
             </motion.div>

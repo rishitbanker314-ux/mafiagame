@@ -11,9 +11,10 @@ interface GameOverViewProps {
   isHost: boolean;
   mySessionId: string;
   players: any[];
+  onLeaveGame?: () => void;
 }
 
-export default function GameOverView({ socket, winner, revealedRoles, isHost, mySessionId, players }: GameOverViewProps) {
+export default function GameOverView({ socket, winner, revealedRoles, isHost, mySessionId, players, onLeaveGame }: GameOverViewProps) {
   useEffect(() => {
     // Generate static noise effect
   }, []);
@@ -47,7 +48,7 @@ export default function GameOverView({ socket, winner, revealedRoles, isHost, my
   const myAgentId = me ? me.name.substring(0, 3).toUpperCase() : '042';
 
   return (
-    <Layout agentId={myAgentId} showNav={false}>
+    <Layout agentId={myAgentId} showNav={true} onLeaveGame={onLeaveGame}>
       {/* Background Layer: The Desk */}
       <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
         <div className="absolute inset-0 bg-surface-container-lowest opacity-40"></div>

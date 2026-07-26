@@ -17,6 +17,7 @@ interface LobbyViewProps {
   players: Player[];
   mySessionId: string;
   settings?: GameSettings;
+  onLeaveGame?: () => void;
 }
 
 export default function LobbyView({
@@ -25,6 +26,7 @@ export default function LobbyView({
   players,
   mySessionId,
   settings,
+  onLeaveGame,
 }: LobbyViewProps) {
   const isHost = players.length > 0 && players[0].id === mySessionId;
   const [stampText, setStampText] = useState('');
@@ -72,7 +74,7 @@ export default function LobbyView({
   const myAgentId = me ? me.name.substring(0, 3).toUpperCase() : '042';
 
   return (
-    <Layout agentId={myAgentId} showNav={true}>
+    <Layout agentId={myAgentId} onLeaveGame={onLeaveGame}>
       <div className="flex flex-col md:grid md:grid-cols-12 gap-gutter min-h-0 flex-1 md:h-full pb-8 md:pb-0">
         {/* Left: Operatives List */}
         <div className="col-span-12 md:col-span-3 flex flex-col gap-6">

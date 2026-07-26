@@ -519,8 +519,46 @@ function registerHandlers(io, socket) {
     }
   });
 
-  // ── Disconnect ──────────────────────────────────────────────────────
+  // ── Leave Game ────────────────────────────────────────────────────────
+  socket.on('leave_game', (callback) => {
+    const roomCode = socket.data.roomCode;
+    const sessionId = socket.data.sessionId;
+    if (!roomCode || !sessionId) {
+      if (callback) callback({ success: false });
+      return;
+    }
 
+    const state = getRoom(roomCode);
+    if (!state) {
+      if (callback) callback({ success: false });
+      return;
+    }
+
+    const player = state.players[sessionId];
+    if (!player) {
+      if (callback) callback({ success: false });
+      return;
+    }
+
+    console.log(`[Room ${roomCode}] Player ${player.name} left the game manually`);
+    player.connected = false;
+
+    if (state.phase === 'lobby') {
+      delete state.players[sessionId];
+    }
+
+    io.to(roomCode).emit('update_lobby', {
+      players: getPlayerList(state),
+      settings: state.settings
+    });
+
+    socket.leave(roomCode);
+    socket.data.roomCode = null;
+
+    if (callback) callback({ success: true });
+  });
+
+  // ── Disconnect ──────────────────────────────────────────────────────
   socket.on('disconnect', () => {
     const roomCode = socket.data.roomCode;
     const sessionId = socket.data.sessionId;

@@ -14,6 +14,7 @@ interface DayViewProps {
   myTeammates?: string[];
   timeLeft?: number | null;
   skipInfo?: SkipInfo | null;
+  onLeaveGame?: () => void;
 }
 
 export default function DayView({
@@ -26,6 +27,7 @@ export default function DayView({
   phase,
   timeLeft,
   skipInfo,
+  onLeaveGame,
 }: DayViewProps) {
   const me = players.find((p) => p.id === mySessionId);
   const isMeAlive = me?.isAlive ?? false;
@@ -115,7 +117,7 @@ export default function DayView({
     : ['ELIMINATION PROTOCOL INITIATED', 'CAST YOUR BALLOT OR ABSTAIN.', 'MAJORITY RULES.'];
 
   return (
-    <Layout agentId={myAgentId} showNav={true}>
+    <Layout agentId={myAgentId} showNav={true} onLeaveGame={onLeaveGame}>
       {/* ── Cinematic Phase Transition Overlay ── */}
       {showHeader && (
         <div className="fixed inset-0 z-50 pointer-events-none flex items-center justify-center" style={{ animation: 'fadeOut 1s ease-out 3s forwards' }}>
@@ -274,7 +276,7 @@ export default function DayView({
         </section>
 
         {/* ── Main Content: Chat + Voting Cards ── */}
-        <div className="flex flex-col lg:grid lg:grid-cols-12 gap-gutter flex-1 min-h-0 lg:overflow-hidden">
+        <div className="flex flex-col lg:grid lg:grid-cols-12 gap-gutter flex-1 min-h-0 lg:overflow-hidden h-full">
 
           {/* Left: Chat / Bulletin Board */}
           <div className="lg:col-span-7 flex flex-col min-h-0 flex-1">
