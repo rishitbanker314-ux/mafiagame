@@ -304,7 +304,7 @@ export default function DayView({
                 </div>
               )}
               
-              <div className="flex-1 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
+              <div className="flex-1 min-h-0 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
                 {chatMessages.length === 0 && (
                   <div className="h-full flex items-center justify-center text-outline text-xs italic uppercase">
                     Awaiting transmissions...
