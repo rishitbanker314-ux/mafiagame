@@ -234,3 +234,22 @@ Emitted 'error' event on Server instance at:
 
 Node.js v20.20.2
 [31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node src/index.js`[39m
+/Users/rishitbanker/mafiagame/server/src/roles/Doctor.js:16
+  /**
+
+SyntaxError: Invalid or unexpected token
+    at wrapSafe (node:internal/modules/cjs/loader:1464:18)
+    at Module._compile (node:internal/modules/cjs/loader:1495:20)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+    at Module.load (node:internal/modules/cjs/loader:1266:32)
+    at Module._load (node:internal/modules/cjs/loader:1091:12)
+    at Module.require (node:internal/modules/cjs/loader:1289:19)
+    at require (node:internal/modules/helpers:182:18)
+    at initializeRoles (/Users/rishitbanker/mafiagame/server/src/roles/registry.js:58:18)
+    at Object.<anonymous> (/Users/rishitbanker/mafiagame/server/src/index.js:10:1)
+    at Module._compile (node:internal/modules/cjs/loader:1521:14)
+
+Node.js v20.20.2
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m

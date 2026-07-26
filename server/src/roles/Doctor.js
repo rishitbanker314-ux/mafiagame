@@ -17,11 +17,7 @@ class Doctor extends Role {
    * Push a protect action onto the game's action queue.
    * The action's execute() closure sets isProtected on the target,
    * keeping all protect logic inside this role — not in the engine.
-   */
   nightAction(sourceId, targetId, state) {
-    if (sourceId === targetId) {
-      throw new Error("Doctor cannot protect themselves.");
-    }
     state.actionQueue.push({
       type: 'protect',
       sourceId,
@@ -40,8 +36,8 @@ class Doctor extends Role {
   }
 
   getBotNightTarget(botId, state) {
-    // Doctor can protect anyone EXCEPT themselves (based on recent bug fix request)
-    const alivePlayers = Object.values(state.players).filter(p => p.isAlive && p.id !== botId);
+    // Doctor can protect anyone, including themselves
+    const alivePlayers = Object.values(state.players).filter(p => p.isAlive);
     if (alivePlayers.length === 0) return null;
     const target = alivePlayers[Math.floor(Math.random() * alivePlayers.length)];
     return target.id;

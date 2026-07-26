@@ -43,8 +43,8 @@ export default function NightView({
   const emoji = ROLE_EMOJIS[myRole.roleName] || '❓';
   const description = ROLE_DESCRIPTIONS[myRole.roleName] || 'Awaiting orders...';
 
-  // Other players (exclude self)
-  let targets = players.filter((p) => p.id !== mySessionId);
+  // Doctor can target anyone including themselves. Others cannot target themselves.
+  let targets = myRole.roleName === 'Doctor' ? players : players.filter((p) => p.id !== mySessionId);
   if (myRole.roleName === 'Mafia') {
     const teammates = myRole.mafiaTeammates || [];
     targets = targets.filter(p => !teammates.includes(p.name));

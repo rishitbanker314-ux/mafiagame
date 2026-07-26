@@ -279,7 +279,7 @@ export default function DayView({
         <div className="flex flex-col lg:grid lg:grid-cols-12 gap-gutter lg:flex-1 lg:min-h-0 lg:overflow-hidden lg:h-full">
 
           {/* Left: Chat / Bulletin Board */}
-          <div className="lg:col-span-7 flex flex-col lg:min-h-0 lg:flex-1 min-h-[500px]">
+          <div className="lg:col-span-7 flex flex-col lg:min-h-0 lg:flex-1 h-[450px] lg:h-auto">
             <section className="bg-surface-container-low p-4 md:p-5 border-2 border-outline-variant relative flex flex-col flex-1 min-h-0">
               <h2 className="font-headline-md text-headline-md uppercase mb-3 border-b border-dashed border-outline pb-2 flex items-center gap-2 shrink-0 text-sm">
                 <span className="material-symbols-outlined text-sm">push_pin</span> 
@@ -306,7 +306,7 @@ export default function DayView({
                 </div>
               )}
               
-              <div className="flex-1 min-h-0 overflow-visible lg:overflow-y-auto space-y-2 pr-2 custom-scrollbar">
+              <div className="flex-1 min-h-0 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
                 {chatMessages.length === 0 && (
                   <div className="h-full flex items-center justify-center text-outline text-xs italic uppercase">
                     Awaiting transmissions...
@@ -369,7 +369,7 @@ export default function DayView({
           </div>
 
           {/* Right: Voting Cards + Agent List */}
-          <div className="lg:col-span-5 flex flex-col min-h-0 flex-1 gap-3 mt-4 lg:mt-0">
+          <div className="lg:col-span-5 flex flex-col lg:min-h-0 lg:flex-1 h-[400px] lg:h-auto gap-3 mt-4 lg:mt-0">
             
             {/* Voting Status Bar */}
             <div className="bg-surface-container p-3 border-2 border-outline-variant shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] shrink-0">
@@ -388,7 +388,7 @@ export default function DayView({
             </div>
 
             {/* Agent Cards (scrollable) */}
-            <div className="flex-1 overflow-visible lg:overflow-y-auto space-y-2 custom-scrollbar pr-1">
+            <div className="flex-1 overflow-y-auto space-y-2 custom-scrollbar pr-1">
 
               {/* ── NO ELIMINATION card ── */}
               {isMeAlive && (
