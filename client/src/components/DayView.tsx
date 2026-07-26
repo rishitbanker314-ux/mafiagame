@@ -14,6 +14,8 @@ interface DayViewProps {
   myTeammates?: string[];
   timeLeft?: number | null;
   skipInfo?: SkipInfo | null;
+  investigationResult?: { targetName: string; team: string } | null;
+  clearInvestigationResult?: () => void;
   onLeaveGame?: () => void;
 }
 
@@ -27,6 +29,8 @@ export default function DayView({
   phase,
   timeLeft,
   skipInfo,
+  investigationResult,
+  clearInvestigationResult,
   onLeaveGame,
 }: DayViewProps) {
   const me = players.find((p) => p.id === mySessionId);
@@ -118,6 +122,28 @@ export default function DayView({
 
   return (
     <Layout agentId={myAgentId} showNav={true} onLeaveGame={onLeaveGame}>
+      {/* Investigation Result Modal */}
+      {investigationResult && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="bg-surface-container border-2 border-primary shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 max-w-md w-full" style={{ animation: 'fadeInUp 0.3s ease-out' }}>
+            <div className="flex items-center gap-3 mb-4 text-primary border-b border-outline-variant pb-3">
+              <span className="material-symbols-outlined text-3xl">policy</span>
+              <h3 className="font-display-lg text-2xl uppercase tracking-widest">Investigation Report</h3>
+            </div>
+            <div className="font-body-lg text-lg mb-6 leading-relaxed">
+              Target: <span className="text-on-surface font-bold uppercase">{investigationResult.targetName}</span><br />
+              Alignment: <span className={`font-bold uppercase tracking-wider ${investigationResult.team === 'mafia' ? 'text-error' : 'text-primary'}`}>{investigationResult.team}</span>
+            </div>
+            <button 
+              onClick={clearInvestigationResult}
+              className="w-full py-3 bg-primary text-on-primary font-headline-md uppercase hover:bg-white transition-colors border-2 border-transparent active:border-primary shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+            >
+              ACKNOWLEDGE
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ── Cinematic Phase Transition Overlay ── */}
       {showHeader && (
         <div className="fixed inset-0 z-50 pointer-events-none flex items-center justify-center" style={{ animation: 'fadeOut 1s ease-out 3s forwards' }}>

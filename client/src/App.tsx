@@ -84,6 +84,7 @@ export default function App() {
   const [connected, setConnected] = useState(socket.connected);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [skipInfo, setSkipInfo] = useState<{skipCount: number; totalNeeded: number} | null>(null);
+  const [investigationResult, setInvestigationResult] = useState<{targetName: string, team: string} | null>(null);
 
   // ── Session Initialization ─────────────────────────────────────────────
   
@@ -185,6 +186,7 @@ export default function App() {
         setVotes({});
         setWinner(null);
         setRevealedRoles([]);
+        setInvestigationResult(null);
       } else if (data.phase === 'game_over') {
         setTimeLeft(null);
       }
@@ -236,6 +238,7 @@ export default function App() {
   useEffect(() => {
     function onInvestigationResult(data: { targetId: string, team: string }) {
       const targetName = players.find((p) => p.id === data.targetId)?.name || 'Unknown';
+      setInvestigationResult({ targetName, team: data.team });
       setChatMessages((prev) => [
         ...prev,
         {
@@ -411,6 +414,8 @@ export default function App() {
                   myTeammates={myTeammates}
                   timeLeft={timeLeft}
                   skipInfo={skipInfo}
+                  investigationResult={investigationResult}
+                  clearInvestigationResult={() => setInvestigationResult(null)}
                   onLeaveGame={handleLeaveGame}
                 />
               )}
