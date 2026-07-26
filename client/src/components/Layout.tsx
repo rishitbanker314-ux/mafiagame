@@ -30,13 +30,17 @@ export default function Layout({ children, agentId = '042', showNav = true }: La
         </>
       )}
 
-      {/* Main Content Area */}
-      <main className={`${showNav ? 'pt-16' : ''} w-full flex flex-col relative overflow-x-hidden bg-surface-dim vignette min-h-screen`}>
-        {/* Background Decoration */}
-        <div className="fixed inset-0 z-0 opacity-10 flex items-center justify-center pointer-events-none">
+      {/* Background Decorators (Fixed to avoid scroll repaints) */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="vignette absolute inset-0"></div>
+        <div className="absolute inset-0 opacity-10 flex items-center justify-center overflow-hidden">
           <div className="text-[100px] md:text-[200px] font-bold text-outline-variant select-none tracking-tighter opacity-20 whitespace-nowrap">TOP SECRET</div>
         </div>
-        <div className="relative z-10 w-full flex-1 p-4 md:p-8 overflow-y-auto flex flex-col">
+      </div>
+      
+      {/* Main Content Area */}
+      <main className={`${showNav ? 'pt-16' : ''} w-full flex flex-col relative overflow-x-hidden bg-transparent min-h-screen z-10`}>
+        <div className="relative w-full flex-1 p-4 md:p-8 overflow-y-auto flex flex-col">
           {children}
         </div>
       </main>

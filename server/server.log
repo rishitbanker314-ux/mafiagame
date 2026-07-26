@@ -138,3 +138,23 @@ Player connected: 3dr2z6tKZj5IhKhzAAAJ
 [Room YYGV] Bot Bot Alice voted for rishit
 [Room YYGV] rishit was voted out.
 [Room YYGV] Game Over! Winner: village
+[Room YYGV] Player rishit disconnected
+Player connected: YgfFZOp9E3-tOJ5TAAAL
+[Room YYGV] Player rishit reconnected.
+[Room YYGV] Game reset to lobby by host
+[Room YYGV] Game started — 4 players, night phase
+[Room YYGV] Bot Bot Bob submitted night action.
+[Room YYGV] rishit (Mafia) submitted action → bot_hle0pc2de
+[Room YYGV] rishit wants to skip discussion (1/1)
+[Room YYGV] Bot Bot Alice voted for rishit
+[Room YYGV] Bot Bot Charlie voted for rishit
+[Room YYGV] Bot Bot Bob voted for Bot Charlie
+[Room YYGV] Bot Bot Bob submitted night action.
+[Room YYGV] rishit (Mafia) submitted action → bot_4qlwirmf1
+[Room YYGV] rishit wants to skip discussion (1/1)
+[Room YYGV] Bot Bot Charlie voted for rishit
+[Room YYGV] rishit voted to skip elimination
+[Room YYGV] Bot Bot Bob voted for Bot Charlie
+[Room YYGV] Bot Bot Bob submitted night action.
+[Room YYGV] rishit (Mafia) submitted action → bot_2ix32qlyp
+[Room YYGV] Game Over! Winner: mafia

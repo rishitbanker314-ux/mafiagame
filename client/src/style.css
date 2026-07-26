@@ -157,12 +157,13 @@
     background-size: 20px 20px
 }
 .ink-bleed {
-    filter: blur(0.4px) contrast(1.2);
-    mix-blend-mode: multiply
+    /* Mobile-optimized: removed expensive blur and mix-blend-mode */
+    opacity: 0.95;
+    color: #1a1a1a;
 }
 .torn-edge {
-    mask-image: linear-gradient(to bottom, black 95%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to bottom, black 95%, transparent 100%)
+    /* Simplified edge to avoid expensive mask rendering on mobile */
+    border-bottom: 2px dashed rgba(0,0,0,0.2);
 }
 .custom-scrollbar::-webkit-scrollbar {
     width: 4px

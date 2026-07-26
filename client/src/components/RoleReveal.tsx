@@ -142,10 +142,8 @@ export default function RoleReveal({ roleName, onAcknowledge }: RoleRevealProps)
             transition={{ duration: 0.5 }}
             className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none"
           >
-            {/* Scan-line background */}
-            <div className="absolute inset-0 bg-black/95" style={{
-              backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px)',
-            }}>
+            {/* Scan-line background (Mobile Optimized) */}
+            <div className="absolute inset-0 bg-black/95">
               {/* Red sweep line */}
               <div className="absolute left-0 right-0 h-[2px]" style={{
                 background: 'linear-gradient(90deg, transparent, #dc2626, transparent)',
@@ -154,10 +152,10 @@ export default function RoleReveal({ roleName, onAcknowledge }: RoleRevealProps)
               }} />
             </div>
 
-            <div className="relative z-10 text-center px-4">
-              <h2 className="font-display-lg text-3xl md:text-5xl uppercase tracking-[0.2em] md:tracking-[0.3em]" style={{
+            <div className="relative z-10 text-center px-4 w-full overflow-hidden">
+              <h2 className="font-display-lg text-4xl sm:text-5xl md:text-6xl uppercase tracking-widest sm:tracking-[0.2em] md:tracking-[0.3em] break-words" style={{
                 color: '#dc2626',
-                textShadow: '0 0 30px rgba(220,38,38,0.5)',
+                textShadow: '0 0 20px rgba(220,38,38,0.4)',
                 animation: 'typeReveal 0.8s steps(20, end) forwards',
                 overflow: 'hidden',
                 whiteSpace: 'nowrap',
