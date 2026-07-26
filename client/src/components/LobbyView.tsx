@@ -1,37 +1,23 @@
 import type { Socket } from 'socket.io-client';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import type { GameSettings } from '../App';
+import Layout from './Layout';
+import { useState, useEffect } from 'react';
 
 interface Player {
   id: string;
   name: string;
   isAlive: boolean;
+  isBot?: boolean;
 }
 
 interface LobbyViewProps {
   socket: Socket;
   roomCode: string;
   players: Player[];
-  mySocketId: string;
+  mySessionId: string;
   settings?: GameSettings;
 }
-
-const listVariants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.1 },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, scale: 0.8 },
-  show: { 
-    opacity: 1, 
-    scale: 1,
-    transition: { type: 'spring' as const, stiffness: 300, damping: 20 }
-  },
-};
 
 export default function LobbyView({
   socket,
@@ -41,6 +27,21 @@ export default function LobbyView({
   settings,
 }: LobbyViewProps) {
   const isHost = players.length > 0 && players[0].id === mySessionId;
+  const [stampText, setStampText] = useState('');
+
+  useEffect(() => {
+    // Typewriter effect for room code
+    let i = 0;
+    const interval = setInterval(() => {
+      if (i <= roomCode.length) {
+        setStampText(roomCode.substring(0, i));
+        i++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 150);
+    return () => clearInterval(interval);
+  }, [roomCode]);
 
   function handleStart() {
     socket.emit('start_game', null, (res: { success: boolean; error?: string }) => {
@@ -56,8 +57,6 @@ export default function LobbyView({
     socket.emit('update_settings', newSettings);
   }
 
-  const tooManyMafia = settings && players.length > 0 && settings.mafiaCount >= players.length / 2;
-
   function handleAddBot() {
     socket.emit('add_bot', null, (res: { success: boolean; error?: string }) => {
       if (!res.success) {
@@ -66,234 +65,213 @@ export default function LobbyView({
     });
   }
 
-  function copyCode() {
-    navigator.clipboard.writeText(roomCode);
-  }
+  const tooManyMafia = settings && players.length > 0 && settings.mafiaCount >= players.length / 2;
+
+  // Derive agent id (first 3 chars of name or session id)
+  const me = players.find(p => p.id === mySessionId);
+  const myAgentId = me ? me.name.substring(0, 3).toUpperCase() : '042';
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <motion.div 
-        className="glass-card glow-border w-full max-w-sm p-8"
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-      >
-        {/* Room Code */}
-        <div className="text-center mb-8">
-          <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
-            Room Code
-          </p>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={copyCode}
-            className="group inline-flex items-center gap-2 cursor-pointer bg-transparent border-none"
-            title="Click to copy"
-          >
-            <span className="text-4xl font-bold tracking-[0.3em] text-white">
-              {roomCode}
+    <Layout agentId={myAgentId} showNav={true}>
+      <div className="grid grid-cols-12 gap-gutter h-full min-h-[600px]">
+        {/* Left: Operatives List */}
+        <div className="col-span-12 md:col-span-3 flex flex-col gap-6">
+          <div className="flex items-center justify-between border-b-2 border-outline-variant pb-2">
+            <h2 className="font-headline-md text-headline-md text-primary uppercase">OPERATIVES</h2>
+            <span className="font-label-sm text-outline">
+              {players.length < 10 ? `0${players.length}` : players.length} / 12
             </span>
-            <svg
-              className="w-5 h-5 text-slate-500 group-hover:text-purple-400 transition-colors"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-              />
-            </svg>
-          </motion.button>
-          <p className="text-xs text-slate-500 mt-1">Share this code with friends</p>
-        </div>
+          </div>
+          
+          <div className="flex-1 overflow-y-auto space-y-4 custom-scrollbar pr-2">
+            {players.map((player, idx) => {
+              const isMe = player.id === mySessionId;
+              const isPlayerHost = idx === 0;
 
-        {/* Divider */}
-        <div className="h-px bg-white/5 mb-6" />
-
-        {/* Player List */}
-        <div className="mb-6">
-          <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-3">
-            Players ({players.length})
-          </p>
-          <motion.div 
-            className="space-y-2"
-            variants={listVariants}
-            initial="hidden"
-            animate="show"
-          >
-            {players.map((player, idx) => (
-              <motion.div
-                key={player.id}
-                variants={itemVariants}
-                className="flex items-center gap-3 px-4 py-3 rounded-lg bg-surface-700/50"
-              >
-                {/* Avatar circle */}
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center text-white text-sm font-bold shrink-0">
-                  {player.name.charAt(0).toUpperCase()}
-                </div>
-
-                {/* Name */}
-                <span className="font-medium text-slate-200 truncate">
-                  {player.name}
-                </span>
-
-                {/* Host badge */}
-                {idx === 0 && (
-                  <span className="ml-auto text-xs font-medium text-amber-400/80 bg-amber-400/10 px-2 py-0.5 rounded-full">
-                    Host
-                  </span>
-                )}
-
-                {/* Bot badge */}
-                {player.isBot && (
-                  <span className="ml-auto text-xs font-medium text-blue-400/80 bg-blue-400/10 px-2 py-0.5 rounded-full">
-                    Bot
-                  </span>
-                )}
-
-                {/* You badge */}
-                {player.id === mySessionId && idx !== 0 && (
-                  <span className="ml-auto text-xs font-medium text-purple-400/80 bg-purple-400/10 px-2 py-0.5 rounded-full">
-                    You
-                  </span>
-                )}
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-
-        {/* Game Settings Panel */}
-        {settings && (
-          <div className="mb-6 p-4 rounded-xl bg-surface-800/50 border border-white/5">
-            <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-4 flex items-center justify-between">
-              Game Settings
-              {!isHost && <span className="text-slate-500 text-[10px]">(Read Only)</span>}
-            </p>
-            
-            <div className="space-y-4">
-              {/* Mafia Counter */}
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-slate-300">Mafias</span>
-                <div className="flex items-center gap-3">
-                  {isHost && (
-                    <button 
-                      onClick={() => updateSetting('mafiaCount', Math.max(1, settings.mafiaCount - 1))}
-                      className="w-6 h-6 rounded-full bg-surface-700 hover:bg-surface-600 flex items-center justify-center text-slate-300 transition-colors"
-                    >-</button>
-                  )}
-                  <div className="w-4 h-6 relative overflow-hidden flex items-center justify-center">
-                    <AnimatePresence mode="popLayout">
-                      <motion.span
-                        key={settings.mafiaCount}
-                        initial={{ y: 20, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        exit={{ y: -20, opacity: 0 }}
-                        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                        className="text-sm font-bold text-red-400 absolute"
-                      >
-                        {settings.mafiaCount}
-                      </motion.span>
-                    </AnimatePresence>
+              return (
+                <div key={player.id} className={`p-4 border-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-colors ${isMe ? 'bg-primary-container border-primary shadow-[4px_4px_0px_0px_rgba(199,198,197,0.3)]' : 'bg-surface-container border-outline-variant hover:bg-surface-container-high'}`}>
+                  <div className="flex gap-4 items-center">
+                    <div className={`w-12 h-16 bg-surface-variant flex-shrink-0 border grain-filter flex items-center justify-center font-bold text-2xl ${isMe ? 'border-primary' : 'border-outline'}`}>
+                      {player.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="flex-1">
+                      <div className={`font-bold uppercase font-label-lg ${isMe ? 'text-primary' : 'text-on-surface'}`}>
+                        {player.name} {isMe && '(YOU)'}
+                      </div>
+                      <div className={`text-[10px] uppercase font-bold tracking-widest mt-1 ${isMe ? 'text-on-primary-container' : 'text-outline'}`}>
+                        {isPlayerHost ? 'DIRECTOR' : player.isBot ? 'AUTOMATON' : 'FIELD AGENT'}
+                      </div>
+                    </div>
+                    {isMe ? (
+                      <span className="material-symbols-outlined text-on-surface-variant">radio</span>
+                    ) : (
+                      <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                    )}
                   </div>
-                  {isHost && (
-                    <button 
-                      onClick={() => updateSetting('mafiaCount', settings.mafiaCount + 1)}
-                      className="w-6 h-6 rounded-full bg-surface-700 hover:bg-surface-600 flex items-center justify-center text-slate-300 transition-colors"
-                    >+</button>
-                  )}
                 </div>
-              </div>
+              );
+            })}
+          </div>
+        </div>
 
-              {/* Special Roles */}
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-slate-300">Include Doctor</span>
-                <button 
-                  onClick={() => isHost && updateSetting('hasDoctor', !settings.hasDoctor)}
-                  className={`w-10 h-5 rounded-full relative transition-colors ${settings.hasDoctor ? 'bg-green-500' : 'bg-surface-700'}`}
-                  disabled={!isHost}
-                >
-                  <motion.div 
-                    layout
-                    className="w-4 h-4 rounded-full bg-white absolute top-0.5"
-                    animate={{ left: settings.hasDoctor ? '22px' : '2px' }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  />
-                </button>
+        {/* Center: Encrypted Channel (Stamping Area) */}
+        <div className="col-span-12 md:col-span-6 flex flex-col items-center justify-center px-8 relative mt-8 md:mt-0">
+          <div className="w-full max-w-md paper-texture p-12 text-background shadow-[12px_12px_0px_0px_rgba(0,0,0,0.8)] relative ink-bleed torn-edge transform -rotate-1">
+            <div className="border-b-2 border-background pb-4 mb-8 flex justify-between items-end">
+              <div className="uppercase font-bold tracking-tighter text-2xl">MEMORANDUM</div>
+              <div className="font-label-sm opacity-70">DATE: 14 NOV 1952</div>
+            </div>
+            
+            <div className="space-y-4 mb-12">
+              <div className="flex gap-4">
+                <span className="font-bold">TO:</span>
+                <span>ALL FIELD AGENTS</span>
               </div>
-
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-slate-300">Include Detective</span>
-                <button 
-                  onClick={() => isHost && updateSetting('hasDetective', !settings.hasDetective)}
-                  className={`w-10 h-5 rounded-full relative transition-colors ${settings.hasDetective ? 'bg-blue-500' : 'bg-surface-700'}`}
-                  disabled={!isHost}
-                >
-                  <motion.div 
-                    layout
-                    className="w-4 h-4 rounded-full bg-white absolute top-0.5"
-                    animate={{ left: settings.hasDetective ? '22px' : '2px' }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  />
-                </button>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-slate-300">Include Jester</span>
-                <button 
-                  onClick={() => isHost && updateSetting('hasJester', !settings.hasJester)}
-                  className={`w-10 h-5 rounded-full relative transition-colors ${settings.hasJester ? 'bg-fuchsia-500' : 'bg-surface-700'}`}
-                  disabled={!isHost}
-                >
-                  <motion.div 
-                    layout
-                    className="w-4 h-4 rounded-full bg-white absolute top-0.5"
-                    animate={{ left: settings.hasJester ? '22px' : '2px' }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  />
-                </button>
+              <div className="flex gap-4">
+                <span className="font-bold">SUBJ:</span>
+                <span>CHANNEL AUTHENTICATION</span>
               </div>
             </div>
+            
+            <div className="dashed-divider mb-8" style={{ borderColor: '#131313' }}></div>
+            
+            <div className="flex flex-col items-center gap-4 py-8 relative">
+              <div className="text-xs uppercase font-bold tracking-widest opacity-60">ENCRYPTED CHANNEL CODE</div>
+              <div className="text-6xl font-display-lg tracking-[0.2em] font-black text-center ink-stamp p-4 scale-110 min-h-[100px] flex items-center justify-center">
+                {stampText}
+              </div>
+              
+              <div className="absolute -bottom-4 -right-4 transform rotate-12 border-4 border-error text-error p-2 font-black uppercase text-xl opacity-80 mix-blend-multiply border-double pointer-events-none">
+                CLASSIFIED
+              </div>
+            </div>
+            
+            <div className="mt-12 text-[10px] leading-tight opacity-70 italic">
+              Unauthorized reproduction of this document is strictly prohibited by order of the Director. Maintain radio silence until the briefing commences.
+            </div>
+            
+            <div className="absolute bottom-4 left-4 w-3 h-5 bg-background animate-pulse"></div>
           </div>
-        )}
-
-        {/* Waiting / Start */}
-        {isHost ? (
-          <div className="space-y-3">
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="btn w-full bg-surface-700 hover:bg-surface-600 text-slate-200 border border-white/10"
-              onClick={handleAddBot}
-            >
-              + Add Bot
-            </motion.button>
-            <div className="space-y-2">
-              <motion.button
-                whileHover={{ scale: tooManyMafia || players.length < 2 ? 1 : 1.02 }}
-                whileTap={{ scale: tooManyMafia || players.length < 2 ? 1 : 0.98 }}
-                className={`btn w-full ${tooManyMafia || players.length < 2 ? 'opacity-50 cursor-not-allowed bg-surface-600 text-slate-400' : 'btn-primary'}`}
+          
+          <div className="mt-12 flex gap-4 md:gap-8 w-full justify-center flex-wrap">
+            {isHost && (
+              <button 
+                onClick={handleAddBot}
+                className="px-8 py-4 border-2 border-primary text-primary font-bold uppercase hover:bg-primary hover:text-on-primary transition-all active:translate-y-1 active:shadow-none shadow-[4px_4px_0px_0px_rgba(199,198,197,0.4)]"
+              >
+                ADD AUTOMATON
+              </button>
+            )}
+            {isHost ? (
+              <button 
                 onClick={handleStart}
                 disabled={players.length < 2 || tooManyMafia}
+                className={`px-12 py-4 font-bold uppercase transition-all active:translate-y-1 active:shadow-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] ${players.length < 2 || tooManyMafia ? 'bg-surface-variant text-outline cursor-not-allowed' : 'bg-primary text-on-primary hover:bg-on-surface-variant'}`}
               >
-                {players.length < 2 ? 'Waiting for players...' : 'Start Game'}
-              </motion.button>
-              {tooManyMafia && (
-                <p className="text-xs text-red-400 text-center animate-pulse">
-                  Too many Mafias for current player count!
-                </p>
-              )}
+                {players.length < 2 ? 'AWAITING AGENTS' : 'COMMENCE MISSION'}
+              </button>
+            ) : (
+              <div className="px-12 py-4 bg-surface-variant text-outline font-bold uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                AWAITING DIRECTOR...
+              </div>
+            )}
+          </div>
+          {tooManyMafia && (
+            <div className="mt-4 text-xs font-bold text-error uppercase animate-pulse">
+              WARNING: TOO MANY HOSTILES DETECTED FOR CURRENT SQUAD SIZE
             </div>
+          )}
+        </div>
+
+        {/* Right: Game Settings */}
+        <div className="col-span-12 md:col-span-3 flex flex-col gap-6 mt-8 md:mt-0">
+          <div className="flex items-center justify-between border-b-2 border-outline-variant pb-2">
+            <h2 className="font-headline-md text-headline-md text-primary uppercase">PARAMETERS</h2>
+            <span className="material-symbols-outlined text-outline">tune</span>
           </div>
-        ) : (
-          <div className="text-center">
-            <p className="text-sm text-slate-400 animate-pulse-slow">
-              ⏳ Waiting for host to start...
-            </p>
-          </div>
-        )}
-      </motion.div>
-    </div>
+          
+          {settings ? (
+            <div className="space-y-8">
+              {/* Mafia Count (Mapped to a custom difficulty slider style or just buttons) */}
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <label className="font-label-lg uppercase tracking-widest text-outline text-xs">HOSTILE_PRESENCE (MAFIA)</label>
+                  <span className="font-mono text-xs text-primary">{settings.mafiaCount}</span>
+                </div>
+                <div className="flex items-center gap-4">
+                  {isHost && (
+                    <button onClick={() => updateSetting('mafiaCount', Math.max(1, settings.mafiaCount - 1))} className="px-3 py-1 bg-surface-container border-2 border-outline-variant text-primary hover:bg-surface-variant font-bold">-</button>
+                  )}
+                  <div className="relative h-6 flex items-center flex-1">
+                    <div className="absolute w-full h-[2px] bg-outline-variant"></div>
+                    <div className="absolute h-[2px] bg-primary" style={{ width: `${(settings.mafiaCount / 5) * 100}%` }}></div>
+                    <div className="absolute w-4 h-6 bg-secondary-fixed shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] border border-on-secondary-fixed-variant" style={{ left: `calc(${(settings.mafiaCount / 5) * 100}% - 8px)` }}></div>
+                  </div>
+                  {isHost && (
+                    <button onClick={() => updateSetting('mafiaCount', settings.mafiaCount + 1)} className="px-3 py-1 bg-surface-container border-2 border-outline-variant text-primary hover:bg-surface-variant font-bold">+</button>
+                  )}
+                </div>
+              </div>
+
+              {/* Toggles */}
+              <div className="space-y-6">
+                <div 
+                  className={`flex justify-between items-center group ${isHost ? 'cursor-pointer' : 'opacity-70'}`}
+                  onClick={() => isHost && updateSetting('hasDoctor', !settings.hasDoctor)}
+                >
+                  <div className="flex flex-col">
+                    <span className="font-bold text-on-surface text-sm uppercase">MEDICAL_SUPPORT</span>
+                    <span className="text-[10px] text-outline uppercase">DOCTOR ROLE</span>
+                  </div>
+                  <div className="w-12 h-6 border-2 border-outline-variant p-1 bg-surface-container relative flex items-center">
+                    <div className={`w-4 h-full shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-all absolute ${settings.hasDoctor ? 'bg-primary right-1' : 'bg-surface-variant left-1'}`}></div>
+                  </div>
+                </div>
+                
+                <div 
+                  className={`flex justify-between items-center group ${isHost ? 'cursor-pointer' : 'opacity-70'}`}
+                  onClick={() => isHost && updateSetting('hasDetective', !settings.hasDetective)}
+                >
+                  <div className="flex flex-col">
+                    <span className="font-bold text-on-surface text-sm uppercase">INVESTIGATOR</span>
+                    <span className="text-[10px] text-outline uppercase">DETECTIVE ROLE</span>
+                  </div>
+                  <div className="w-12 h-6 border-2 border-outline-variant p-1 bg-surface-container relative flex items-center">
+                    <div className={`w-4 h-full shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-all absolute ${settings.hasDetective ? 'bg-primary right-1' : 'bg-surface-variant left-1'}`}></div>
+                  </div>
+                </div>
+
+                <div 
+                  className={`flex justify-between items-center group ${isHost ? 'cursor-pointer' : 'opacity-70'}`}
+                  onClick={() => isHost && updateSetting('hasJester', !settings.hasJester)}
+                >
+                  <div className="flex flex-col">
+                    <span className="font-bold text-on-surface text-sm uppercase">CHAOS_AGENT</span>
+                    <span className="text-[10px] text-outline uppercase">JESTER ROLE</span>
+                  </div>
+                  <div className="w-12 h-6 border-2 border-outline-variant p-1 bg-surface-container relative flex items-center">
+                    <div className={`w-4 h-full shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-all absolute ${settings.hasJester ? 'bg-error right-1' : 'bg-surface-variant left-1'}`}></div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="dashed-divider"></div>
+              
+              <div className="bg-surface-container-high p-4 border border-outline-variant">
+                <div className="flex gap-2 text-primary mb-2">
+                  <span className="material-symbols-outlined text-sm">warning</span>
+                  <span className="font-label-sm uppercase">INTEL_LEAK_WARNING</span>
+                </div>
+                <p className="text-[10px] text-outline uppercase leading-normal">
+                  All session data is stored locally. Encryption keys will expire in 04:59.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="text-outline text-sm animate-pulse uppercase">Syncing parameters...</div>
+          )}
+        </div>
+      </div>
+    </Layout>
   );
 }

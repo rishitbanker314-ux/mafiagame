@@ -7,12 +7,13 @@ interface RoleRevealProps {
 }
 
 export default function RoleReveal({ roleName, onAcknowledge }: RoleRevealProps) {
-  const [showButton, setShowButton] = useState(false);
+  const [showStamp, setShowStamp] = useState(false);
+  const [accepted, setAccepted] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setShowButton(true);
-    }, 3000);
+      setShowStamp(true);
+    }, 2000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -38,71 +39,113 @@ export default function RoleReveal({ roleName, onAcknowledge }: RoleRevealProps)
       break;
   }
 
+  const handleAccept = () => {
+    setAccepted(true);
+    setTimeout(() => {
+      onAcknowledge();
+    }, 1500);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0, transition: { duration: 1 } }}
-      className="fixed inset-0 bg-black flex flex-col items-center justify-center z-[100] px-4 text-center overflow-hidden"
+      className="fixed inset-0 bg-background text-on-surface z-[100] flex flex-col items-center justify-center overflow-hidden font-body-md"
     >
-      {/* Background ambient glow based on role */}
-      <div 
-        className="absolute inset-0 opacity-20"
-        style={{
-          background: `radial-gradient(circle at center, ${
-            roleName.toLowerCase() === 'mafia' ? 'rgba(220,38,38,0.5)' : 
-            roleName.toLowerCase() === 'doctor' ? 'rgba(34,197,94,0.5)' : 
-            roleName.toLowerCase() === 'detective' ? 'rgba(59,130,246,0.5)' : 
-            roleName.toLowerCase() === 'jester' ? 'rgba(217,70,239,0.5)' : 
-            'rgba(148,163,184,0.5)'
-          } 0%, transparent 70%)`
-        }}
-      />
+      <div className="grain-overlay opacity-10"></div>
+      <div className="vignette"></div>
 
-      <div className="relative z-10 flex flex-col items-center max-w-2xl">
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.5 }}
-          className="text-slate-400 text-sm md:text-lg tracking-[0.3em] uppercase mb-4"
-        >
-          You are the
-        </motion.p>
-        
-        <motion.h1
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 2, delay: 1, ease: 'easeOut' }}
-          className="text-5xl md:text-8xl font-black uppercase tracking-widest text-white mb-12 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]"
-        >
-          {roleName}
-        </motion.h1>
+      <main className="relative min-h-screen w-full flex items-center justify-center p-gutter z-20">
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          <img 
+            className="w-full h-full object-cover grayscale brightness-50 opacity-60" 
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCTe49v_NwGS41GQMOCx5IDEgnaBLAQ8dhYJtYw8jBY4oY4K70QapJvA_HTTH5K73AGEBQ41T-pjVlieSKd2d4gfq1a2mn1JIxkH4ZfPYKiAkXEI9IWbkiNwzLh2qRMIaWHxx04mr3nTp5G75ycZUi1gGEPSUC59xUN7Sw4erwfik9PolUjVSN2lKvUsJFPEnihH4uLHIsLESwH-vRCK4N5lm-hqXKDJeYE4FkjVjfpUaDVk8JkJw1EASE5i2LBqJJSa-2umD67lfM"
+            alt="Noir background"
+          />
+        </div>
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 2, delay: 2.5 }}
-          className="text-lg md:text-2xl text-slate-300 italic font-light font-serif mb-16"
-        >
-          "{flavorQuote}"
-        </motion.p>
+        <div className="relative z-20 max-w-3xl w-full flex flex-col items-center">
+          <motion.div 
+            initial={{ y: 50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.5, duration: 1, type: "spring" }}
+            className={`dossier-card torn-edge p-12 w-full text-center space-y-8 bg-surface-container border border-outline-variant shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] ${accepted ? 'animate-pulse' : ''}`}
+          >
+            <div className="inline-block border-4 border-error p-4 rotate-[-2deg] mb-8 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+              <h1 className="font-display-lg text-[48px] md:text-[64px] text-error uppercase leading-none font-extrabold tracking-tighter">
+                YOUR ASSIGNMENT: {roleName}
+              </h1>
+            </div>
 
-        <AnimatePresence>
-          {showButton && (
-            <motion.button
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1 }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={onAcknowledge}
-              className="px-8 py-3 rounded-full border border-white/20 bg-white/5 hover:bg-white/10 text-white font-medium tracking-wider uppercase transition-colors"
-            >
-              Continue to Game
-            </motion.button>
-          )}
-        </AnimatePresence>
-      </div>
+            <div className="space-y-4 px-8">
+              <p className="font-body-lg text-body-lg text-on-surface max-w-xl mx-auto italic">
+                "{flavorQuote}"
+              </p>
+              <div className="h-[1px] w-full border-b border-dashed border-outline-variant my-6"></div>
+              <p className="font-body-md text-body-md text-outline uppercase tracking-widest">
+                OBJECTIVE: SURVIVE THE NIGHT.
+                <br/>
+                LOCATION: THE VANGUARD SOCIAL CLUB.
+              </p>
+            </div>
+
+            <AnimatePresence>
+              {showStamp && (
+                <motion.div 
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                  className="pt-10 flex flex-col items-center"
+                >
+                  <button 
+                    onClick={handleAccept}
+                    disabled={accepted}
+                    className="group relative h-32 w-32 rounded-full bg-[#690005] border-2 border-[#93000a] flex items-center justify-center shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:scale-105 transition-transform active:translate-y-1 active:shadow-none"
+                  >
+                    <div className="absolute inset-2 border border-[#ffdad6] border-dashed rounded-full opacity-30"></div>
+                    <div className="relative z-10 flex flex-col items-center">
+                      <span className="material-symbols-outlined text-[40px] text-on-error mb-1" style={{ fontVariationSettings: "'FILL' 1" }}>fingerprint</span>
+                      <span className="font-label-sm text-[10px] text-on-error font-bold text-center leading-none">I ACCEPT<br/>MY FATE</span>
+                    </div>
+                    <div className="absolute inset-0 rounded-full shadow-inner pointer-events-none" style={{ boxShadow: 'inset 0 0 15px rgba(0,0,0,0.5)' }}></div>
+                  </button>
+                  <p className="mt-4 font-label-sm text-outline-variant uppercase">Sign with thumbprint to initiate protocol</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+
+          <div className="mt-8 flex gap-12 text-outline font-label-sm uppercase tracking-widest relative z-20">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-sm">schedule</span>
+              <span>02:14 AM</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-sm">location_on</span>
+              <span>DISTRICT 4</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-sm">encrypted</span>
+              <span>SECURE LINK</span>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <AnimatePresence>
+        {accepted && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            className="absolute inset-0 z-50 bg-[#690005] flex items-center justify-center pointer-events-none"
+          >
+            <h2 className="text-white font-display-lg text-6xl uppercase tracking-tighter">PROTOCOL INITIATED</h2>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

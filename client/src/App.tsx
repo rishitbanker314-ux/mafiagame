@@ -378,6 +378,8 @@ export default function App() {
                   winner={winner}
                   revealedRoles={revealedRoles}
                   isHost={players.length > 0 ? (players[0].id === localStorage.getItem('sessionToken')) : false}
+                  players={players}
+                  mySessionId={localStorage.getItem('sessionToken') || ''}
                 />
               )}
             </motion.div>
