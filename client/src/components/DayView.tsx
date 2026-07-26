@@ -286,10 +286,10 @@ export default function DayView({
                   <button
                     onClick={handleSkipDiscussion}
                     disabled={hasSkipped}
-                    className={`ml-auto text-[10px] px-2 py-1 border uppercase font-label-sm tracking-wider transition-all ${
+                    className={`ml-auto text-[10px] px-2 py-1 border uppercase font-label-sm tracking-wider transition-all duration-300 ease-out active:scale-95 disabled:active:scale-100 ${
                       hasSkipped
                         ? 'border-outline text-outline cursor-not-allowed bg-surface-container'
-                        : 'border-primary text-primary hover:bg-primary hover:text-on-primary'
+                        : 'border-primary text-primary hover:bg-primary hover:text-on-primary hover:scale-[1.05]'
                     }`}
                   >
                     {hasSkipped ? '✓ SKIP REQUESTED' : 'SKIP DISCUSSION'}
@@ -357,7 +357,7 @@ export default function DayView({
                   <button 
                     onClick={handleSendChat}
                     disabled={!chatInput.trim()}
-                    className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-2 font-label-lg text-xs text-primary hover:text-on-surface transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                    className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-2 font-label-lg text-xs text-primary hover:text-on-surface transition-all duration-300 ease-out hover:scale-105 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:active:scale-100"
                   >
                     TRANSMIT <span className="material-symbols-outlined text-sm">send</span>
                   </button>
@@ -391,7 +391,7 @@ export default function DayView({
               {/* ── NO ELIMINATION card ── */}
               {isMeAlive && (
                 <div 
-                  className={`p-3 flex items-center gap-3 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] border-2 transition-all cursor-pointer ${
+                  className={`p-3 flex items-center gap-3 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] border-2 transition-all duration-300 ease-out hover:scale-[1.02] active:scale-[0.98] cursor-pointer ${
                     myVoteTarget === '__SKIP__'
                       ? 'border-primary bg-primary/10 text-primary'
                       : 'border-outline-variant bg-surface-container hover:border-primary hover:bg-primary/5'
@@ -453,7 +453,7 @@ export default function DayView({
                     <button 
                       onClick={() => handleVote(player.id)}
                       disabled={!isMeAlive}
-                      className={`shrink-0 px-2 py-1.5 text-[10px] uppercase tracking-widest font-bold border-2 transition-all ${
+                      className={`shrink-0 px-2 py-1.5 text-[10px] uppercase tracking-widest font-bold border-2 transition-all duration-300 ease-out hover:scale-[1.05] active:scale-95 disabled:hover:scale-100 disabled:active:scale-100 ${
                         isMyVote 
                           ? 'border-green-800 text-green-800 bg-green-800/10' 
                           : 'border-red-900 text-red-900 hover:bg-red-900 hover:text-white'

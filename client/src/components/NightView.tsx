@@ -120,7 +120,7 @@ export default function NightView({
                         <button 
                           onClick={() => handleTarget(player.id)}
                           disabled={submitted}
-                          className="text-error-container font-bold text-headline-md uppercase hover:scale-110 active:scale-95 transition-all shadow-[2px_2px_0px_rgba(0,0,0,0.2)] border-2 border-dashed border-error-container p-2 transform rotate-[-2deg]"
+                          className="text-error-container font-bold text-headline-md uppercase hover:scale-[1.08] active:scale-95 transition-all duration-300 ease-out shadow-[2px_2px_0px_rgba(0,0,0,0.2)] border-2 border-dashed border-error-container p-2 transform rotate-[-2deg] disabled:hover:scale-100 disabled:active:scale-100 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           SELECT TARGET
                         </button>

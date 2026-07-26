@@ -157,7 +157,7 @@ export default function LobbyView({
             {isHost && (
               <button 
                 onClick={handleAddBot}
-                className="px-8 py-4 border-2 border-primary text-primary font-bold uppercase hover:bg-primary hover:text-on-primary transition-all active:translate-y-1 active:shadow-none shadow-[4px_4px_0px_0px_rgba(199,198,197,0.4)]"
+                className="px-8 py-4 border-2 border-primary text-primary font-bold uppercase hover:bg-primary hover:text-on-primary transition-all duration-300 ease-out hover:scale-[1.02] active:scale-95 shadow-[4px_4px_0px_0px_rgba(199,198,197,0.4)] active:shadow-none"
               >
                 ADD AUTOMATON
               </button>
@@ -166,7 +166,7 @@ export default function LobbyView({
               <button 
                 onClick={handleStart}
                 disabled={players.length < 2 || tooManyMafia}
-                className={`px-12 py-4 font-bold uppercase transition-all active:translate-y-1 active:shadow-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] ${players.length < 2 || tooManyMafia ? 'bg-surface-variant text-outline cursor-not-allowed' : 'bg-primary text-on-primary hover:bg-on-surface-variant'}`}
+                className={`px-12 py-4 font-bold uppercase transition-all duration-300 ease-out hover:scale-[1.02] active:scale-95 disabled:hover:scale-100 disabled:active:scale-100 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none ${players.length < 2 || tooManyMafia ? 'bg-surface-variant text-outline cursor-not-allowed' : 'bg-primary text-on-primary hover:bg-on-surface-variant'}`}
               >
                 {players.length < 2 ? 'AWAITING AGENTS' : 'COMMENCE MISSION'}
               </button>
@@ -200,7 +200,7 @@ export default function LobbyView({
                 </div>
                 <div className="flex items-center gap-4">
                   {isHost && (
-                    <button onClick={() => updateSetting('mafiaCount', Math.max(1, settings.mafiaCount - 1))} className="px-3 py-1 bg-surface-container border-2 border-outline-variant text-primary hover:bg-surface-variant font-bold">-</button>
+                    <button onClick={() => updateSetting('mafiaCount', Math.max(1, settings.mafiaCount - 1))} className="px-3 py-1 bg-surface-container border-2 border-outline-variant text-primary hover:bg-surface-variant font-bold transition-all duration-200 active:scale-90">-</button>
                   )}
                   <div className="relative h-6 flex items-center flex-1">
                     <div className="absolute w-full h-[2px] bg-outline-variant"></div>
@@ -208,7 +208,7 @@ export default function LobbyView({
                     <div className="absolute w-4 h-6 bg-secondary-fixed shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] border border-on-secondary-fixed-variant" style={{ left: `calc(${(settings.mafiaCount / 5) * 100}% - 8px)` }}></div>
                   </div>
                   {isHost && (
-                    <button onClick={() => updateSetting('mafiaCount', settings.mafiaCount + 1)} className="px-3 py-1 bg-surface-container border-2 border-outline-variant text-primary hover:bg-surface-variant font-bold">+</button>
+                    <button onClick={() => updateSetting('mafiaCount', settings.mafiaCount + 1)} className="px-3 py-1 bg-surface-container border-2 border-outline-variant text-primary hover:bg-surface-variant font-bold transition-all duration-200 active:scale-90">+</button>
                   )}
                 </div>
               </div>
@@ -265,7 +265,7 @@ export default function LobbyView({
                 </div>
                 <div className="flex items-center gap-4">
                   {isHost && (
-                    <button onClick={() => updateSetting('discussionTime', Math.max(15, (settings.discussionTime || 60) - 15))} className="px-3 py-1 bg-surface-container border-2 border-outline-variant text-primary hover:bg-surface-variant font-bold">-</button>
+                    <button onClick={() => updateSetting('discussionTime', Math.max(15, (settings.discussionTime || 60) - 15))} className="px-3 py-1 bg-surface-container border-2 border-outline-variant text-primary hover:bg-surface-variant font-bold transition-all duration-200 active:scale-90">-</button>
                   )}
                   <div className="relative h-6 flex items-center flex-1">
                     <div className="absolute w-full h-[2px] bg-outline-variant"></div>
@@ -273,7 +273,7 @@ export default function LobbyView({
                     <div className="absolute w-4 h-6 bg-secondary-fixed shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] border border-on-secondary-fixed-variant" style={{ left: `calc(${((settings.discussionTime || 60) / 180) * 100}% - 8px)` }}></div>
                   </div>
                   {isHost && (
-                    <button onClick={() => updateSetting('discussionTime', Math.min(180, (settings.discussionTime || 60) + 15))} className="px-3 py-1 bg-surface-container border-2 border-outline-variant text-primary hover:bg-surface-variant font-bold">+</button>
+                    <button onClick={() => updateSetting('discussionTime', Math.min(180, (settings.discussionTime || 60) + 15))} className="px-3 py-1 bg-surface-container border-2 border-outline-variant text-primary hover:bg-surface-variant font-bold transition-all duration-200 active:scale-90">+</button>
                   )}
                 </div>
                 <div className="flex justify-between text-[9px] text-outline uppercase">

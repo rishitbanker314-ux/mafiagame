@@ -192,7 +192,7 @@ export default function JoinView({ socket, onJoined }: JoinViewProps) {
             <button
               onClick={handleJoin}
               disabled={loading}
-              className="w-full bg-on-surface text-surface py-3 font-label-lg uppercase tracking-widest hover:bg-on-surface-variant transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full bg-on-surface text-surface py-3 font-label-lg uppercase tracking-widest hover:bg-on-surface-variant transition-all duration-300 ease-out hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:active:scale-100 flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
             >
               {loading ? (
                 <span className="material-symbols-outlined animate-spin text-sm">sync</span>
@@ -211,7 +211,7 @@ export default function JoinView({ socket, onJoined }: JoinViewProps) {
             <button
               onClick={handleCreate}
               disabled={loading}
-              className="w-full border border-on-surface text-on-surface py-3 font-label-lg uppercase tracking-widest hover:bg-surface-container-highest transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full border border-on-surface text-on-surface py-3 font-label-lg uppercase tracking-widest hover:bg-surface-container-highest transition-all duration-300 ease-out hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:active:scale-100 flex items-center justify-center gap-2"
             >
               <span className="material-symbols-outlined text-sm">add_circle</span>
               {loading ? 'Establishing...' : 'Establish Syndicate'}
@@ -220,7 +220,7 @@ export default function JoinView({ socket, onJoined }: JoinViewProps) {
             <button
               onClick={handlePlayWithBots}
               disabled={loading}
-              className="w-full border border-outline-variant text-on-surface-variant py-3 mt-2 font-label-lg uppercase tracking-widest hover:bg-surface-container-highest hover:text-on-surface transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full border border-outline-variant text-on-surface-variant py-3 mt-2 font-label-lg uppercase tracking-widest hover:bg-surface-container-highest hover:text-on-surface transition-all duration-300 ease-out hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:active:scale-100 flex items-center justify-center gap-2"
             >
               <span className="material-symbols-outlined text-sm">smart_toy</span>
               {loading ? 'Initializing...' : 'Solo Operation (Bots)'}

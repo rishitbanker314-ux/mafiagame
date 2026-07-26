@@ -150,7 +150,7 @@ export default function GameOverView({ socket, winner, revealedRoles, isHost, my
               {isHost ? (
                 <button 
                   onClick={handlePlayAgain}
-                  className="bg-primary text-on-primary px-8 py-3 font-label-lg text-label-lg uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-1 hover:shadow-none transition-all active:scale-95"
+                  className="bg-primary text-on-primary px-8 py-3 font-label-lg text-label-lg uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-1 hover:shadow-none transition-all duration-300 ease-out hover:scale-[1.02] active:scale-95"
                 >
                   REOPEN_FILE
                 </button>
