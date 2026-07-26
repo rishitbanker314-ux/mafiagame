@@ -28,7 +28,7 @@ export default function LobbyView({
   settings,
   onLeaveGame,
 }: LobbyViewProps) {
-  const isHost = players.length > 0 && players[0].id === mySessionId;
+  const isHost = players.find(p => p.id === mySessionId)?.isHost || false;
   const [stampText, setStampText] = useState('');
 
   useEffect(() => {
@@ -75,7 +75,7 @@ export default function LobbyView({
 
   return (
     <Layout agentId={myAgentId} onLeaveGame={onLeaveGame}>
-      <div className="flex flex-col md:grid md:grid-cols-12 gap-gutter min-h-0 flex-1 md:h-full pb-8 md:pb-0 overflow-y-auto md:overflow-visible custom-scrollbar">
+      <div className="flex flex-col md:grid md:grid-cols-12 gap-gutter min-h-0 flex-1 md:h-full pb-8 md:pb-0 md:overflow-hidden">
         {/* Left: Operatives List */}
         <div className="col-span-12 md:col-span-3 flex flex-col gap-6">
           <div className="flex items-center justify-between border-b-2 border-outline-variant pb-2">
@@ -85,10 +85,10 @@ export default function LobbyView({
             </span>
           </div>
           
-          <div className="flex-1 overflow-y-auto space-y-4 custom-scrollbar pr-2">
+          <div className="flex-1 overflow-visible md:overflow-y-auto space-y-4 custom-scrollbar pr-2">
             {players.map((player, idx) => {
               const isMe = player.id === mySessionId;
-              const isPlayerHost = idx === 0;
+              const isPlayerHost = player.isHost;
 
               return (
                 <div key={player.id} className={`p-4 border-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-colors ${isMe ? 'bg-primary-container border-primary shadow-[4px_4px_0px_0px_rgba(199,198,197,0.3)]' : 'bg-surface-container border-outline-variant hover:bg-surface-container-high'}`}>
@@ -186,7 +186,7 @@ export default function LobbyView({
         </div>
 
         {/* Right: Game Settings */}
-        <div className="col-span-12 md:col-span-3 flex flex-col gap-6 mt-8 md:mt-0">
+        <div className="col-span-12 md:col-span-3 flex flex-col gap-6 overflow-visible md:overflow-y-auto pt-8 md:pt-0 pb-20 md:pb-0">
           <div className="flex items-center justify-between border-b-2 border-outline-variant pb-2">
             <h2 className="font-headline-md text-headline-md text-primary uppercase">PARAMETERS</h2>
             <span className="material-symbols-outlined text-outline">tune</span>

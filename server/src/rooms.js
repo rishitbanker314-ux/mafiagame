@@ -81,6 +81,7 @@ function getPlayerList(state) {
     isAlive: p.isAlive,
     connected: p.connected,
     isBot: p.isBot || false,
+    isHost: p.id === state.hostId
   }));
 }
 

@@ -16,6 +16,19 @@ function shuffle(arr) {
   return arr;
 }
 
+function reassignHostIfNeeded(state, disconnectedSessionId) {
+  if (state.hostId === disconnectedSessionId) {
+    // Find next connected human player
+    const players = Object.values(state.players);
+    const nextHost = players.find(p => p.connected && !p.isBot && p.id !== disconnectedSessionId);
+    if (nextHost) {
+      state.hostId = nextHost.id;
+      return true;
+    }
+  }
+  return false;
+}
+
 function buildRoleList(playerCount, settings) {
   const roles = [];
   for (let i = 0; i < settings.mafiaCount; i++) {
@@ -547,6 +560,8 @@ function registerHandlers(io, socket) {
       delete state.players[sessionId];
     }
 
+    const hostChanged = reassignHostIfNeeded(state, sessionId);
+
     io.to(roomCode).emit('update_lobby', {
       players: getPlayerList(state),
       settings: state.settings
@@ -577,6 +592,8 @@ function registerHandlers(io, socket) {
       delete state.players[sessionId];
     }
     
+    const hostChanged = reassignHostIfNeeded(state, sessionId);
+
     io.to(roomCode).emit('update_lobby', {
       players: getPlayerList(state),
       settings: state.settings

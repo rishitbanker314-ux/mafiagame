@@ -64,7 +64,7 @@ export default function NightView({
 
   return (
     <Layout agentId={myAgentId} onLeaveGame={onLeaveGame}>
-      <div className="flex flex-col lg:grid lg:grid-cols-12 gap-gutter flex-1 min-h-0 lg:overflow-hidden h-full overflow-y-auto lg:overflow-visible custom-scrollbar">
+      <div className="flex flex-col lg:grid lg:grid-cols-12 gap-gutter flex-1 min-h-0 lg:overflow-hidden h-full overflow-visible">
         {/* Secure Transmission Overlay */}
         {submitted && (
           <div className="fixed bottom-8 right-8 z-[110] flex items-center gap-3 bg-surface-container p-4 border border-outline-variant shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
@@ -85,7 +85,7 @@ export default function NightView({
             <p className="font-label-sm text-label-sm uppercase text-outline">TARGETS: {targets.length}</p>
           </div>
 
-          <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 pb-4">
+          <div className="flex-1 overflow-visible lg:overflow-y-auto custom-scrollbar pr-2 pb-4">
             {!hasNightAction ? (
               <div className="flex flex-col items-center justify-center h-full opacity-50">
                 <span className="material-symbols-outlined text-6xl mb-4">nightlight</span>
@@ -142,7 +142,7 @@ export default function NightView({
             <span className="material-symbols-outlined text-error" style={{ fontVariationSettings: "'FILL' 1" }}>groups</span>
           </div>
           
-          <div className="flex-grow space-y-6 overflow-y-auto mb-6 pr-2 custom-scrollbar">
+          <div className="flex-grow space-y-6 overflow-visible lg:overflow-y-auto mb-6 pr-2 custom-scrollbar">
             {myTeammates && myTeammates.length > 0 ? (
               <div className="space-y-4">
                 <p className="font-label-sm text-outline uppercase tracking-widest border-b border-outline-variant pb-2">Verified Allies</p>

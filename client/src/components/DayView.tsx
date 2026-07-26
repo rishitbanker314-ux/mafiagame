@@ -276,7 +276,7 @@ export default function DayView({
         </section>
 
         {/* ── Main Content: Chat + Voting Cards ── */}
-        <div className="flex flex-col lg:grid lg:grid-cols-12 gap-gutter flex-1 min-h-0 lg:overflow-hidden h-full overflow-y-auto custom-scrollbar">
+        <div className="flex flex-col lg:grid lg:grid-cols-12 gap-gutter flex-1 min-h-0 lg:overflow-hidden h-full overflow-visible">
 
           {/* Left: Chat / Bulletin Board */}
           <div className="lg:col-span-7 flex flex-col min-h-0 flex-1">
@@ -306,7 +306,7 @@ export default function DayView({
                 </div>
               )}
               
-              <div className="flex-1 min-h-0 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
+              <div className="flex-1 min-h-0 overflow-visible lg:overflow-y-auto space-y-2 pr-2 custom-scrollbar">
                 {chatMessages.length === 0 && (
                   <div className="h-full flex items-center justify-center text-outline text-xs italic uppercase">
                     Awaiting transmissions...
@@ -388,7 +388,7 @@ export default function DayView({
             </div>
 
             {/* Agent Cards (scrollable) */}
-            <div className="flex-1 overflow-y-auto space-y-2 custom-scrollbar pr-1">
+            <div className="flex-1 overflow-visible lg:overflow-y-auto space-y-2 custom-scrollbar pr-1">
 
               {/* ── NO ELIMINATION card ── */}
               {isMeAlive && (
