@@ -139,7 +139,7 @@ export default function LobbyView({
             
             <div className="flex flex-col items-center gap-4 py-8 relative">
               <div className="text-xs uppercase font-bold tracking-widest opacity-60">ENCRYPTED CHANNEL CODE</div>
-              <div className="text-6xl font-display-lg tracking-[0.2em] font-black text-center ink-stamp p-4 scale-110 min-h-[100px] flex items-center justify-center">
+              <div className="text-4xl md:text-6xl font-display-lg tracking-widest md:tracking-[0.2em] font-black text-center ink-stamp p-4 scale-110 min-h-[100px] flex items-center justify-center break-all">
                 {stampText}
               </div>
               

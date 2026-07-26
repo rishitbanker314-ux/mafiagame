@@ -66,7 +66,7 @@ export default function GameOverView({ socket, winner, revealedRoles, isHost, my
           transition={{ duration: 0.8, ease: "easeOut" }}
           className="max-w-container-max w-full text-center mb-16 transform -rotate-1"
         >
-          <h1 className="font-display-lg text-display-lg uppercase tracking-tighter text-on-surface leading-none mb-4">
+          <h1 className="font-display-lg text-4xl md:text-display-lg uppercase tracking-tighter text-on-surface leading-none mb-4 break-words">
             {titleText}
           </h1>
           <div className="flex items-center justify-center gap-4">

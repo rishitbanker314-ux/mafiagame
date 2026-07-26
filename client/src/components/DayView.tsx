@@ -159,7 +159,7 @@ export default function DayView({
             </h1>
 
             {/* Subtitle */}
-            <p className="text-xs md:text-sm uppercase tracking-[0.5em] text-gray-400 mb-8" style={{ animation: 'fadeInUp 0.6s ease-out 0.8s both' }}>
+            <p className="text-[10px] md:text-sm uppercase tracking-widest md:tracking-[0.5em] text-gray-400 mb-8 px-2 break-words" style={{ animation: 'fadeInUp 0.6s ease-out 0.8s both' }}>
               {phaseFlavorText[0]}
             </p>
 
@@ -229,7 +229,7 @@ export default function DayView({
             <div className="flex items-center gap-4">
               <div className={`w-1.5 self-stretch ${isDiscussion ? 'bg-primary' : 'bg-error'}`} />
               <div>
-                <h1 className="font-display-lg text-xl md:text-2xl uppercase tracking-tight leading-none">
+                <h1 className="font-display-lg text-lg md:text-2xl uppercase tracking-tight leading-none break-words">
                   {isDiscussion ? 'DEBRIEFING' : 'ELIMINATION PROTOCOL'}
                 </h1>
                 <div className="flex items-center gap-3 mt-1 flex-wrap">

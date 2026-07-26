@@ -17,8 +17,8 @@ export default function Layout({ children, agentId = '042', showNav = true, onLe
         <>
           {/* Top Bar Component */}
           <nav className="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-4 md:px-gutter h-16 bg-background text-primary shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-b-2 border-outline-variant">
-            <div className="font-headline-md text-headline-md text-on-surface uppercase tracking-tighter">THE DOSSIER</div>
-            <div className="flex items-center gap-3">
+            <div className="font-headline-md text-lg md:text-headline-md text-on-surface uppercase tracking-tighter truncate">THE DOSSIER</div>
+            <div className="flex items-center gap-3 shrink-0">
               {onLeaveGame && (
                 <button 
                   onClick={onLeaveGame}
