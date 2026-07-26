@@ -450,17 +450,23 @@ export default function DayView({
                     </div>
 
                     {/* Vote Button */}
-                    <button 
-                      onClick={() => handleVote(player.id)}
-                      disabled={!isMeAlive}
-                      className={`shrink-0 px-2 py-1.5 text-[10px] uppercase tracking-widest font-bold border-2 transition-all duration-300 ease-out hover:scale-[1.05] active:scale-95 disabled:hover:scale-100 disabled:active:scale-100 ${
-                        isMyVote 
-                          ? 'border-green-800 text-green-800 bg-green-800/10' 
-                          : 'border-red-900 text-red-900 hover:bg-red-900 hover:text-white'
-                      } ${!isMeAlive ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    >
-                      {isMyVote ? '✓ CAST' : 'VOTE'}
-                    </button>
+                    {player.id !== mySessionId ? (
+                      <button 
+                        onClick={() => handleVote(player.id)}
+                        disabled={!isMeAlive}
+                        className={`shrink-0 px-2 py-1.5 text-[10px] uppercase tracking-widest font-bold border-2 transition-all duration-300 ease-out hover:scale-[1.05] active:scale-95 disabled:hover:scale-100 disabled:active:scale-100 ${
+                          isMyVote 
+                            ? 'border-green-800 text-green-800 bg-green-800/10' 
+                            : 'border-red-900 text-red-900 hover:bg-red-900 hover:text-white'
+                        } ${!isMeAlive ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      >
+                        {isMyVote ? '✓ CAST' : 'VOTE'}
+                      </button>
+                    ) : (
+                      <div className="shrink-0 px-2 py-1.5 text-[10px] uppercase tracking-widest font-bold border-2 border-outline-variant text-outline opacity-50">
+                        YOU
+                      </div>
+                    )}
                   </div>
                 );
               })}

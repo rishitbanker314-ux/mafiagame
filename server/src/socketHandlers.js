@@ -301,6 +301,7 @@ function registerHandlers(io, socket) {
 
       if (!voter) throw new Error('Player not found.');
       if (!voter.isAlive) throw new Error('Dead players cannot vote.');
+      if (sessionId === targetId) throw new Error('You cannot vote for yourself.');
       if (!target) throw new Error('Target player not found.');
       if (!target.isAlive) throw new Error('Cannot vote for a dead player.');
 
