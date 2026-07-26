@@ -52,10 +52,12 @@ export default function Background({ phase, winner }: BackgroundProps) {
             height: p.size,
             left: `${p.x}%`,
             top: `${p.y}%`,
+            /* Add translateZ to force hardware acceleration */
+            transform: 'translateZ(0)',
           }}
+          /* Removed expensive x/y animations that kill mobile performance */
           animate={{
-            x: [0, Math.random() * 100 - 50, 0],
-            y: [0, Math.random() * 100 - 50, 0],
+            opacity: [0.5, 0.8, 0.5],
           }}
           transition={{
             duration: p.duration,

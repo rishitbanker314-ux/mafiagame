@@ -146,7 +146,8 @@
     pointer-events: none;
     opacity: 0.04;
     background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuDUV3seYJSIPps5qjs4PpCmD1tF9vayXoyCoIWjJtcJG9HA4O1LAI5fqNFqONafj7DdyVaKXSQ9QL8gH7zbRMji8gh55BT0VodwHaZKIuF5_gWum8HzytoZ4GjIt5MVYw4sn8ih_Fl7Y6N2iI9sRiNWUPCm_SWOWyxjhQhEXktgqDpmsAzsjGfYPY_9gVQplFoTkdul1RsHfSAo_OD8trE_Joy3Nei16gGK-KBC-mOOwyD6SixmJER5UEBVJRu7qk4yJqAhqMeqmAI);
-    z-index: 9999
+    z-index: 9999;
+    transform: translateZ(0); /* Hardware accelerate to prevent scroll lag */
 }
 .vignette {
     box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.7)
@@ -164,6 +165,10 @@
 .torn-edge {
     /* Simplified edge to avoid expensive mask rendering on mobile */
     border-bottom: 2px dashed rgba(0,0,0,0.2);
+}
+.custom-scrollbar {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
 }
 .custom-scrollbar::-webkit-scrollbar {
     width: 4px
@@ -186,4 +191,12 @@
     border-top: 1px dashed #444748;
     height: 1px;
     width: 100%
+}
+
+@layer base {
+  html, body {
+    overscroll-behavior-y: none;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+  }
 }
