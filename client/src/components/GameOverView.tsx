@@ -45,7 +45,7 @@ export default function GameOverView({ socket, winner, revealedRoles, isHost, my
     titleText = `${winner.toUpperCase()} WINS`;
   }
 
-  const me = players.find(p => p.id === mySessionId);
+  const me = (players || []).find(p => p.id === mySessionId);
   const myAgentId = me ? me.name.substring(0, 3).toUpperCase() : '042';
 
   return (
@@ -110,7 +110,7 @@ export default function GameOverView({ socket, winner, revealedRoles, isHost, my
               <div className="col-span-12 md:col-span-3 text-right hidden md:block">FATE</div>
             </div>
 
-            {revealedRoles.map((player, idx) => (
+            {(revealedRoles || []).map((player, idx) => (
               <div key={player.playerName}>
                 <div className="grid grid-cols-12 gap-4 items-center font-body-md text-on-primary-fixed py-2">
                   <div className="col-span-1 opacity-50 hidden md:block">{(idx + 1).toString().padStart(2, '0')}</div>

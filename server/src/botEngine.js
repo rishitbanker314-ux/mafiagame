@@ -33,89 +33,9 @@ function simulateBotNightActions(io, roomCode, state) {
             }
           }
           
-          // Check if all actions are in
           if (state.pendingActions.size === 0) {
-            clearPhaseTimer(state);
-            const wasAlive = {};
-            for (const pid of Object.keys(state.players)) {
-              wasAlive[pid] = state.players[pid].isAlive;
-            }
-
-            resolveNightPhase(state);
-
-            const killed = Object.keys(state.players)
-              .filter((pid) => wasAlive[pid] && !state.players[pid].isAlive)
-              .map((pid) => ({
-                playerId: pid,
-                playerName: state.players[pid].name,
-                roleName: state.players[pid].role ? state.players[pid].role.name : 'Unknown'
-              }));
-
-            if (handleWinCondition(io, roomCode, state)) {
-              io.to(roomCode).emit('night_results', { killed });
-              return;
-            }
-
-            state.phase = 'day';
-            io.to(roomCode).emit('phase_change', { phase: 'day' });
-
-            startPhaseTimer(io, roomCode, state, 60, () => {
-              // We'll just let the server's day timeout handle it if we wanted, 
-              // but bot engine doesn't have forceDayResolution. We can just wait for bots to vote.
-              // Actually it's fine, if a timeout happens, the bot won't do anything special,
-              // but we need forceDayResolution. Since we don't have it, let's just 
-              // emit a chat message and transition to night inline if timeout fires here.
-              clearPhaseTimer(state);
-              io.to(roomCode).emit('chat_message', {
-                id: Math.random().toString(36).substr(2, 9),
-                senderId: 'system',
-                senderName: 'System',
-                text: `Time ran out! The town failed to reach a consensus.`,
-                isGhost: false,
-                isSystem: true
-              });
-              state.votes = {};
-              setTimeout(() => {
-                state.phase = 'night';
-                state.pendingActions = computePendingActions(state);
-                io.to(roomCode).emit('phase_change', { phase: 'night' });
-                // We don't start the night timer here because it's tricky without circular deps.
-                // It's better to just let the bot vote naturally since bots vote fast anyway.
-                simulateBotNightActions(io, roomCode, state);
-              }, 2500);
-            });
-            
-            setTimeout(() => {
-              io.to(roomCode).emit('night_results', { killed });
-
-              if (killed.length > 0) {
-                killed.forEach((k) => {
-                  io.to(roomCode).emit('chat_message', {
-                    id: Math.random().toString(36).substr(2, 9),
-                    senderId: 'system',
-                    senderName: 'System',
-                    text: `${k.playerName} was eliminated during the night.`,
-                    isGhost: false,
-                    isSystem: true
-                  });
-                });
-              } else {
-                io.to(roomCode).emit('chat_message', {
-                  id: Math.random().toString(36).substr(2, 9),
-                  senderId: 'system',
-                  senderName: 'System',
-                  text: `Nobody was eliminated last night.`,
-                  isGhost: false,
-                  isSystem: true
-                });
-              }
-
-              console.log(`[Room ${roomCode}] Night resolved — killed: ${killed.length > 0 ? killed.map(k => k.playerName).join(', ') : 'nobody'}`);
-              
-              // Now it's day phase, trigger day bots!
-              simulateBotDayActions(io, roomCode, state);
-
-            }, 500);
+            const { resolveNightAndTransition } = require('./engine/gameLoop');
+            resolveNightAndTransition(io, roomCode, state);
           }
         }
       }, thinkTime);
