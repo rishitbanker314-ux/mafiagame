@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import type { Socket } from 'socket.io-client';
 import { motion } from 'framer-motion';
 import type { RevealedRole } from '../App';
@@ -14,10 +14,8 @@ interface GameOverViewProps {
 }
 
 export default function GameOverView({ socket, winner, revealedRoles, isHost, mySessionId, players }: GameOverViewProps) {
-  const [mounted, setMounted] = useState(false);
-
   useEffect(() => {
-    setMounted(true);
+    // Generate static noise effect
   }, []);
 
   function handlePlayAgain() {

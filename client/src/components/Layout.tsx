@@ -7,7 +7,7 @@ interface LayoutProps {
   onFileReport?: () => void;
 }
 
-export default function Layout({ children, showNav = true, agentId = '042', onFileReport }: LayoutProps) {
+export default function Layout({ children, agentId = '042', showNav = true }: LayoutProps) {
   return (
     <div className="bg-surface-dim text-on-surface font-body-md min-h-screen selection:bg-primary selection:text-on-primary">
       <div className="noise-overlay"></div>

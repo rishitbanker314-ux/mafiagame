@@ -9,10 +9,6 @@ export default function ProgressBar({ timeLeft, maxTime = 60 }: ProgressBarProps
   const percentage = Math.max(0, Math.min(100, (timeLeft / maxTime) * 100));
   const isDanger = timeLeft <= 10;
 
-  const minutes = Math.floor(timeLeft / 60);
-  const seconds = timeLeft % 60;
-  const timeDisplay = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-
   return (
     <div className="fixed top-0 left-0 w-full z-50">
       {/* Progress bar */}

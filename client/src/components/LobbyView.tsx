@@ -1,5 +1,5 @@
 import type { Socket } from 'socket.io-client';
-import { motion } from 'framer-motion';
+
 import type { GameSettings } from '../App';
 import Layout from './Layout';
 import { useState, useEffect } from 'react';

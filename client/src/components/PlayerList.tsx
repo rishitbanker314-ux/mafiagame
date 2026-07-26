@@ -38,7 +38,6 @@ const PlayerList = React.memo(function PlayerList({ players, mySessionId, votes,
             voteCount={voteCount}
             onAction={onVote}
             disabled={disabled || !canAct || !player.isAlive || player.id === mySessionId}
-            actionLabel={disabled ? "Waiting..." : "Vote"}
           />
         );
       })}

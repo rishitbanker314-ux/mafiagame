@@ -140,9 +140,54 @@ export default function RoleReveal({ roleName, onAcknowledge }: RoleRevealProps)
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
-            className="absolute inset-0 z-50 bg-[#690005] flex items-center justify-center pointer-events-none"
+            className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none"
           >
-            <h2 className="text-white font-display-lg text-6xl uppercase tracking-tighter">PROTOCOL INITIATED</h2>
+            {/* Scan-line background */}
+            <div className="absolute inset-0 bg-black/95" style={{
+              backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px)',
+            }}>
+              {/* Red sweep line */}
+              <div className="absolute left-0 right-0 h-[2px]" style={{
+                background: 'linear-gradient(90deg, transparent, #dc2626, transparent)',
+                animation: 'sweepDown 2s ease-in-out infinite',
+                top: '0%',
+              }} />
+            </div>
+
+            <div className="relative z-10 text-center px-4">
+              <h2 className="font-display-lg text-3xl md:text-5xl uppercase tracking-[0.2em] md:tracking-[0.3em]" style={{
+                color: '#dc2626',
+                textShadow: '0 0 30px rgba(220,38,38,0.5)',
+                animation: 'typeReveal 0.8s steps(20, end) forwards',
+                overflow: 'hidden',
+                whiteSpace: 'nowrap',
+                borderRight: '3px solid #dc2626',
+                margin: '0 auto',
+                display: 'inline-block'
+              }}>
+                PROTOCOL INITIATED
+              </h2>
+              <p className="mt-4 text-[10px] md:text-xs uppercase tracking-[0.4em] md:tracking-[0.5em] text-gray-400" style={{ animation: 'fadeInUp 0.6s ease-out 0.8s both' }}>
+                PREPARING FOR NIGHT PHASE...
+              </p>
+            </div>
+            
+            <style>{`
+              @keyframes sweepDown {
+                0% { top: 0%; opacity: 0; }
+                10% { opacity: 1; }
+                90% { opacity: 1; }
+                100% { top: 100%; opacity: 0; }
+              }
+              @keyframes typeReveal {
+                from { max-width: 0; }
+                to { max-width: 100%; }
+              }
+              @keyframes fadeInUp {
+                from { opacity: 0; transform: translateY(15px); }
+                to { opacity: 1; transform: translateY(0); }
+              }
+            `}</style>
           </motion.div>
         )}
       </AnimatePresence>

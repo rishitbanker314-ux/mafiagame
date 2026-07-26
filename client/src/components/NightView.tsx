@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import type { Socket } from 'socket.io-client';
-import { motion } from 'framer-motion';
-import type { Player, RoleInfo } from '../App';
+import type { Player, Role } from '../App';
 import Layout from './Layout';
 
 interface NightViewProps {
   socket: Socket;
-  myRole: RoleInfo;
+  myRole: Role;
   players: Player[];
   mySessionId: string;
   myTeammates?: string[];
