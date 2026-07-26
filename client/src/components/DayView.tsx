@@ -274,10 +274,10 @@ export default function DayView({
         </section>
 
         {/* ── Main Content: Chat + Voting Cards ── */}
-        <div className="grid grid-cols-12 gap-gutter flex-1 min-h-0 overflow-hidden">
+        <div className="flex flex-col lg:grid lg:grid-cols-12 gap-gutter flex-1 min-h-0 lg:overflow-hidden">
 
           {/* Left: Chat / Bulletin Board */}
-          <div className="col-span-12 lg:col-span-7 flex flex-col min-h-0">
+          <div className="lg:col-span-7 flex flex-col min-h-0 flex-1">
             <section className="bg-surface-container-low p-4 md:p-5 border-2 border-outline-variant relative flex flex-col flex-1 min-h-0">
               <h2 className="font-headline-md text-headline-md uppercase mb-3 border-b border-dashed border-outline pb-2 flex items-center gap-2 shrink-0 text-sm">
                 <span className="material-symbols-outlined text-sm">push_pin</span> 
@@ -367,7 +367,7 @@ export default function DayView({
           </div>
 
           {/* Right: Voting Cards + Agent List */}
-          <div className="col-span-12 lg:col-span-5 flex flex-col min-h-0 gap-3">
+          <div className="lg:col-span-5 flex flex-col min-h-0 flex-1 gap-3 mt-4 lg:mt-0">
             
             {/* Voting Status Bar */}
             <div className="bg-surface-container p-3 border-2 border-outline-variant shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] shrink-0">

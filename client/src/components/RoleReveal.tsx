@@ -73,7 +73,7 @@ export default function RoleReveal({ roleName, onAcknowledge }: RoleRevealProps)
             className={`dossier-card torn-edge p-12 w-full text-center space-y-8 bg-surface-container border border-outline-variant shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] ${accepted ? 'animate-pulse' : ''}`}
           >
             <div className="inline-block border-4 border-error p-4 rotate-[-2deg] mb-8 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-              <h1 className="font-display-lg text-[48px] md:text-[64px] text-error uppercase leading-none font-extrabold tracking-tighter">
+              <h1 className="font-display-lg text-3xl sm:text-5xl md:text-[64px] text-error uppercase leading-none font-extrabold tracking-tighter">
                 YOUR ASSIGNMENT: {roleName}
               </h1>
             </div>

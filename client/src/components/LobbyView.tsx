@@ -73,7 +73,7 @@ export default function LobbyView({
 
   return (
     <Layout agentId={myAgentId} showNav={true}>
-      <div className="grid grid-cols-12 gap-gutter h-full min-h-[600px]">
+      <div className="flex flex-col md:grid md:grid-cols-12 gap-gutter min-h-0 flex-1 md:h-full pb-8 md:pb-0">
         {/* Left: Operatives List */}
         <div className="col-span-12 md:col-span-3 flex flex-col gap-6">
           <div className="flex items-center justify-between border-b-2 border-outline-variant pb-2">

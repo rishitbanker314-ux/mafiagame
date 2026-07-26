@@ -62,7 +62,7 @@ export default function NightView({
 
   return (
     <Layout agentId={myAgentId} showNav={true}>
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter h-full">
+      <div className="flex flex-col lg:grid lg:grid-cols-12 gap-gutter flex-1 min-h-0 lg:overflow-hidden h-full">
         {/* Secure Transmission Overlay */}
         {submitted && (
           <div className="fixed bottom-8 right-8 z-[110] flex items-center gap-3 bg-surface-container p-4 border border-outline-variant shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
@@ -72,7 +72,7 @@ export default function NightView({
         )}
 
         {/* Left: Player Dossiers Grid */}
-        <div className="lg:col-span-8 space-y-gutter flex flex-col h-full">
+        <div className="lg:col-span-8 space-y-gutter flex flex-col min-h-0 flex-1">
           <div className="flex justify-between items-end border-b border-outline-variant pb-2">
             <div>
               <h2 className="font-headline-md text-headline-md uppercase tracking-tight flex items-center gap-2">
@@ -134,7 +134,7 @@ export default function NightView({
         </div>
 
         {/* Right: The Syndicate HUD */}
-        <div className="lg:col-span-4 h-full flex flex-col bg-surface-container border-l-2 border-outline-variant shadow-[-4px_0px_0px_0px_rgba(0,0,0,1)] p-6 overflow-hidden mt-8 lg:mt-0">
+        <div className="lg:col-span-4 flex flex-col min-h-0 flex-1 shrink-0 bg-surface-container border-l-2 border-outline-variant shadow-[-4px_0px_0px_0px_rgba(0,0,0,1)] p-6 lg:overflow-hidden mt-8 lg:mt-0">
           <div className="flex items-center justify-between mb-6 border-b-2 border-outline-variant pb-4">
             <h2 className="font-headline-md text-headline-md uppercase tracking-tighter text-error">THE SYNDICATE</h2>
             <span className="material-symbols-outlined text-error" style={{ fontVariationSettings: "'FILL' 1" }}>groups</span>

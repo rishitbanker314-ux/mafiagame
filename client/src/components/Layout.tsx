@@ -31,12 +31,12 @@ export default function Layout({ children, agentId = '042', showNav = true }: La
       )}
 
       {/* Main Content Area */}
-      <main className={`${showNav ? 'pt-16' : ''} w-full relative overflow-x-hidden bg-surface-dim vignette min-h-screen`}>
+      <main className={`${showNav ? 'pt-16' : ''} w-full flex flex-col relative overflow-x-hidden bg-surface-dim vignette min-h-screen`}>
         {/* Background Decoration */}
         <div className="fixed inset-0 z-0 opacity-10 flex items-center justify-center pointer-events-none">
           <div className="text-[100px] md:text-[200px] font-bold text-outline-variant select-none tracking-tighter opacity-20 whitespace-nowrap">TOP SECRET</div>
         </div>
-        <div className="relative z-10 w-full h-full p-4 md:p-8 overflow-y-auto">
+        <div className="relative z-10 w-full flex-1 p-4 md:p-8 overflow-y-auto flex flex-col">
           {children}
         </div>
       </main>
